@@ -2,62 +2,139 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi Página de Enlaces</title>
+  <title>Caja de herramientas - Verificación de cumplimiento</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
+      font-family: 'Inter', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
-    h1 {
-      padding: 20px;
-      background-color: #333;
-      color: white;
+    header {
+      background-color: #ffffff;
+      padding: 40px 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    header h1 {
       margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 18px;
+      color: #666;
     }
 
     .button-container {
-      margin: 50px 0;
+      margin: 60px auto;
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
     }
 
     .link-button {
-      display: inline-block;
-      margin: 10px;
-      padding: 15px 25px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px;
+      padding: 14px 30px;
       font-size: 16px;
       text-decoration: none;
-      color: white;
-      background-color: #007BFF;
-      border-radius: 8px;
-      transition: background-color 0.3s;
+      color: #fff;
+      background-color: #4da6ff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .link-button i {
+      font-size: 18px;
     }
 
     .link-button:hover {
-      background-color: #0056b3;
+      background-color: #3399ff;
+      transform: translateY(-2px);
+    }
+
+    .link-button.disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .link-button {
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+        justify-content: center;
+      }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
     }
 
     footer {
-      position: fixed;
-      width: 100%;
-      bottom: 0;
-      background-color: #222;
-      color: white;
-      padding: 10px 0;
+      margin-top: auto;
+      text-align: center;
+      padding: 15px;
+      background-color: #f1f1f1;
+      color: #555;
       font-size: 14px;
+    }
+
+    .contact {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    .contact a {
+      color: #4da6ff;
+      text-decoration: none;
+    }
+
+    .contact a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 
-  <h1>Bienvenido a Mi Página</h1>
+  <header>
+    <h1>Grupo de trabajo para la verificación del cumplimiento</h1>
+    <p>Caja de herramientas</p>
+  </header>
 
   <div class="button-container">
-    <a href="https://ejemplo1.com" class="link-button" target="_blank">Enlace 1</a>
-    <a href="https://ejemplo2.com" class="link-button" target="_blank">Enlace 2</a>
-    <a href="https://ejemplo3.com" class="link-button" target="_blank">Enlace 3</a>
+    <a href="https://colab.research.google.com/drive/18Ki2pEe4SQi4DisBMvOwtUjad_J7-SJv?usp=sharing" class="link-button" target="_blank">
+      <i class="fas fa-calculator"></i> Contador de términos sencillo
+    </a>
+    <a href="https://colab.research.google.com/drive/1OIuK2xbCA9r-7Ycr31diirzDatYLG49y?usp=sharing" class="link-button" target="_blank">
+      <i class="fas fa-gavel"></i> Aplicativo multas
+    </a>
+    <a class="link-button disabled">
+      <i class="fas fa-chart-line"></i> Index y proporcional (próximamente)
+    </a>
+  </div>
+
+  <div class="contact">
+    ¿Tienes sugerencias? Escríbeme a <a href="mailto:jamelendez@sic.gov.co">jamelendez@sic.gov.co</a>
   </div>
 
   <footer>
