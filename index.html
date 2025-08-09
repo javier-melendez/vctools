@@ -1,203 +1,100 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caja de herramientas - Verificación de cumplimiento</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      margin: 0;
-      padding: 0 16px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header {
-      background-color: #ffffff;
-      padding: 40px 20px 10px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    header p {
-      margin: 10px 0 0;
-      font-size: 18px;
-      color: #666;
-    }
-
-    .button-container {
-      margin: 50px auto 30px;
-      width: 100%;
-      max-width: 400px;
-      opacity: 0;
-      animation: fadeIn 1.5s ease forwards;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .link-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 16px 20px;
-      font-size: 18px;
-      text-decoration: none;
-      color: #fff;
-      background-color: #4da6ff;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background-color 0.3s ease, transform 0.2s ease;
-    }
-
-    .link-button i {
-      font-size: 20px;
-    }
-
-    .link-button:hover {
-      background-color: #3399ff;
-      transform: translateY(-2px);
-    }
-
-    .link-button.disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-
-    footer {
-      margin-top: auto;
-      text-align: center;
-      padding: 20px;
-      background-color: #f1f1f1;
-      color: #555;
-      font-size: 14px;
-    }
-
-    .contact {
-      text-align: center;
-      font-size: 14px;
-      color: #777;
-      margin-top: 30px;
-      margin-bottom: 20px;
-    }
-
-    .contact a {
-      color: #4da6ff;
-      text-decoration: none;
-    }
-
-    .contact a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
-      .button-container {
-        animation: none;
-        opacity: 1;
-      }
-
-      header h1 {
-        font-size: 20px;
-      }
-
-      header p {
-        font-size: 16px;
-      }
-
-      .link-button {
-        font-size: 16px;
-        padding: 14px 18px;
-      }
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #121212;
-        color: #e0e0e0;
-      }
-
-      header {
-        background-color: #1f1f1f;
-      }
-
-      .link-button {
-        background-color: #3366cc;
-      }
-
-      .link-button:hover {
-        background-color: #295bb5;
-      }
-
-      .link-button.disabled {
-        background-color: #666666;
-      }
-
-      footer {
-        background-color: #1a1a1a;
-        color: #ccc;
-      }
-
-      .contact {
-        color: #aaa;
-      }
-
-      .contact a {
-        color: #88bbff;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja de herramientas - Verificación de cumplimiento</title>
+    <!-- Incluye Tailwind CSS desde CDN para un estilo rápido y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Usa la fuente 'Inter' de Google Fonts para una tipografía limpia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos de Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estilos personalizados para el modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #e0e0e0;
+            }
+            header {
+                background-color: #1f1f1f;
+            }
+            footer {
+                background-color: #1a1a1a;
+            }
+            .link-button {
+                background-color: #3366cc;
+            }
+            .link-button:hover {
+                background-color: #295bb5;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
 
-  <header>
-    <h1>Grupo de trabajo para la verificación del cumplimiento</h1>
-    <p>Caja de herramientas</p>
-  </header>
+    <!-- Encabezado de la página -->
+    <header class="bg-white p-6 md:p-10 text-center shadow-lg rounded-b-2xl">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gray-800">Grupo de trabajo para la verificación del cumplimiento</h1>
+        <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
+    </header>
 
- <div class="button-container">
-    <a href="https://colab.research.google.com/drive/18Ki2pEe4SQi4DisBMvOwtUjad_J7-SJv?usp=sharing" class="link-button" target="_blank">
-      <i class="fas fa-calculator"></i> Contador de términos sencillo
-    </a>
-    <a href="https://colab.research.google.com/drive/1OIuK2xbCA9r-7Ycr31diirzDatYLG49y?usp=sharing" class="link-button" target="_blank">
-      <i class="fas fa-gavel"></i> Aplicativo multas
-    </a>
-    <a href="https://colab.research.google.com/drive/1p-4faW2iIEhWOA2zfPj8sHAKJfpH2fDv?usp=sharing" class="link-button" target="_blank">
-      <i class="fas fa-chart-line"></i> Index y proporcional
-    </a>
-    <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing" class="link-button" target="_blank">
-      <i class="fas fa-flask"></i> Aplicativo de multas 2.0 (beta)
-    </a>
-    <a href="https://colab.research.google.com/drive/17z7mxgCy_zQvywNs3IeiCR3yiPN_zBxU?usp=sharing" class="link-button" target="_blank">
-      <i class="fas fa-filter"></i> Aplicativo para filtro
-    </a>
-</div>
+    <!-- Contenedor principal de los botones -->
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="button-container w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
+            <!-- Botón 1 -->
+            <a href="https://colab.research.google.com/drive/18Ki2pEe4SQi4DisBMvOwtUjad_J7-SJv?usp=sharing"
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-blue-500 hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
+                <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Contador de términos sencillo</span>
+            </a>
+            <!-- Botón 2 -->
+            <a href="https://colab.research.google.com/drive/1OIuK2xbCA9r-7Ycr31diirzDatYLG49y?usp=sharing"
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-emerald-500 hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
+                <i class="fas fa-gavel mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Aplicativo multas</span>
+            </a>
+            <!-- Botón 3 -->
+            <a href="https://colab.research.google.com/drive/1p-4faW2iIEhWOA2zfPj8sHAKJfpH2fDv?usp=sharing"
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-purple-500 hover:bg-purple-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
+                <i class="fas fa-chart-line mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Index y proporcional</span>
+            </a>
+            <!-- Botón 4 -->
+            <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-orange-500 hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
+                <i class="fas fa-flask mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Aplicativo de multas 2.0 (beta)</span>
+            </a>
+            <!-- Botón 5 -->
+            <a href="https://colab.research.google.com/drive/17z7mxgCy_zQvywNs3IeiCR3yiPN_zBxU?usp=sharing"
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-red-500 hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
+                <i class="fas fa-filter mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Aplicativo para filtro</span>
+            </a>
+        </div>
+    </main>
+    
+    <!-- Sección de contacto -->
+    <div class="p-6 text-center text-gray-600">
+        <p class="text-sm">¿Tienes sugerencias? Escríbeme a <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a></p>
+    </div>
 
-  <div class="contact">
-    ¿Tienes sugerencias? Escríbeme a <a href="mailto:jamelendez@sic.gov.co">jamelendez@sic.gov.co</a>
-  </div>
-
-  <footer>
-    Desarrollado por Javier Meléndez O.
-  </footer>
+    <!-- Pie de página -->
+    <footer class="bg-white p-4 text-center text-gray-500 shadow-lg rounded-t-2xl mt-auto">
+        <p>© 2024 Desarrollado por Javier Meléndez O.</p>
+    </footer>
 
 </body>
 </html>
