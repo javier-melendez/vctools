@@ -13,10 +13,28 @@
     <!-- Iconos de Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
+        :root {
+            --accent: #00695c;
+            --bg: #fafbfc;
+            --fg: #222;
+            --border: #e0e0e0;
+            --radius: 12px;
+        }
         body {
             font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
         }
-        /* Estilos personalizados para el modo oscuro */
+        header, footer {
+            background: #fff;
+        }
+        .link-button {
+            border-radius: var(--radius);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .link-button:hover {
+            transform: scale(1.05);
+        }
         @media (prefers-color-scheme: dark) {
             body {
                 background-color: #121212;
@@ -28,21 +46,15 @@
             footer {
                 background-color: #1a1a1a;
             }
-            .link-button {
-                background-color: #3366cc;
-            }
-            .link-button:hover {
-                background-color: #295bb5;
-            }
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen">
 
     <!-- Encabezado de la página (full width) -->
-    <header class="w-full bg-white p-6 md:p-10 text-center shadow-lg">
+    <header class="w-full p-6 md:p-10 text-center shadow-lg">
         <div class="max-w-5xl mx-auto">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--accent)">
                 Grupo de trabajo para la verificación del cumplimiento
             </h1>
             <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
@@ -55,7 +67,8 @@
             
             <!-- Botón nuevo (2.0 beta) -->
             <a href="calculadora.html"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-green-500 hover:bg-green-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #2e7d32"
                target="_blank">
                 <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
                 <span class="whitespace-nowrap">Contador de términos 2.0 (beta)</span>
@@ -63,7 +76,8 @@
 
             <!-- Botón 1 -->
             <a href="https://colab.research.google.com/drive/18Ki2pEe4SQi4DisBMvOwtUjad_J7-SJv?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-blue-500 hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #1565c0"
                target="_blank">
                 <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Contador de términos sencillo</span>
@@ -71,15 +85,26 @@
 
             <!-- Botón 3 -->
             <a href="https://colab.research.google.com/drive/1p-4faW2iIEhWOA2zfPj8sHAKJfpH2fDv?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-purple-500 hover:bg-purple-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #6a1b9a"
                target="_blank">
                 <i class="fas fa-chart-line mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Index y proporcional</span>
             </a>
 
+            <!-- Botón nuevo index y proporcional (beta) -->
+            <a href="proporcional.html"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: var(--accent)"
+               target="_blank">
+                <i class="fas fa-chart-pie mr-3 text-xl group-hover:animate-pulse"></i>
+                <span>Index y proporcional (beta)</span>
+            </a>
+
             <!-- Botón 4 -->
             <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-orange-500 hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #ef6c00"
                target="_blank">
                 <i class="fas fa-flask mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Aplicativo de multas 2.0</span>
@@ -87,7 +112,8 @@
 
             <!-- Botón 5 -->
             <a href="https://colab.research.google.com/drive/1gJ3nGU4U4FwBz9yTr55R-gVaNBTW7_P1?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-red-500 hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #c62828"
                target="_blank">
                 <i class="fas fa-filter mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Filtro 2.0</span>
@@ -95,7 +121,8 @@
 
             <!-- Botón 6 -->
             <a href="https://colab.research.google.com/drive/1QYgJxMk8FuaKPP5Yhm_4aieruhRYxy3F?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-pink-500 hover:bg-pink-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #ad1457"
                target="_blank">
                 <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Filler 2.0</span>
@@ -103,7 +130,8 @@
 
             <!-- Botón 7 -->
             <a href="https://its2sicgov-my.sharepoint.com/:f:/g/personal/jamelendez_sic_gov_co/ErTSPuYhCv1KuukYsWxCFVQBRhLYBthKqN9rhIbuWOakNQ?e=PgmaT3"
-               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-yellow-500 hover:bg-yellow-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+               style="background: #fbc02d; color:#222"
                target="_blank">
                 <i class="fas fa-folder mr-3 text-xl group-hover:animate-pulse"></i>
                 <span>Plantillas</span>
@@ -142,7 +170,7 @@
     </div>
 
     <!-- Pie de página (full width) -->
-    <footer class="w-full bg-white p-4 text-center text-gray-500 shadow-lg mt-auto">
+    <footer class="w-full p-4 text-center text-gray-500 shadow-lg mt-auto">
         <div class="max-w-5xl mx-auto">
             <p>© 2025 Desarrollado por Javier Meléndez O.</p>
         </div>
