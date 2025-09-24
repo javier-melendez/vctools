@@ -37,22 +37,26 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen max-w-5xl mx-auto">
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
 
-    <!-- Encabezado de la página -->
-    <header class="bg-white p-6 md:p-10 text-center shadow-lg rounded-b-2xl">
-        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gray-800">Grupo de trabajo para la verificación del cumplimiento</h1>
-        <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
+    <!-- Encabezado de la página (full width) -->
+    <header class="w-full bg-white p-6 md:p-10 text-center shadow-lg">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2 text-gray-800">
+                Grupo de trabajo para la verificación del cumplimiento
+            </h1>
+            <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
+        </div>
     </header>
 
     <!-- Contenedor principal de los botones -->
     <main class="flex-grow flex items-center justify-center p-4">
-        <div class="button-container w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
+        <div class="w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
             
             <!-- Botón nuevo (2.0 beta) -->
             <a href="calculadora.html"
-            class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-green-500 hover:bg-green-600 transition-all duration-300 transform hover:scale-105 shadow-md"
-            target="_blank">
+               class="link-button group flex items-center justify-center p-4 rounded-xl text-white font-semibold text-lg bg-green-500 hover:bg-green-600 transition-all duration-300 transform hover:scale-105 shadow-md"
+               target="_blank">
                 <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
                 <span class="whitespace-nowrap">Contador de términos 2.0 (beta)</span>
             </a>
@@ -108,7 +112,7 @@
     </main>
 
     <!-- Información para tener en cuenta -->
-    <section class="max-w-3xl mx-auto my-8 px-4 space-y-6">
+    <section class="max-w-5xl mx-auto my-8 px-4 space-y-6">
         <!-- ... contenido igual ... -->
     </section>
 
@@ -130,13 +134,18 @@
     </script>
 
     <!-- Sección de contacto -->
-    <div class="p-6 text-center text-gray-600">
-        <p class="text-sm">¿Tienes sugerencias? Escríbeme a <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a></p>
+    <div class="p-6 text-center text-gray-600 max-w-5xl mx-auto">
+        <p class="text-sm">
+            ¿Tienes sugerencias? Escríbeme a 
+            <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a>
+        </p>
     </div>
 
-    <!-- Pie de página -->
-    <footer class="bg-white p-4 text-center text-gray-500 shadow-lg rounded-t-2xl mt-auto">
-        <p>© 2025 Desarrollado por Javier Meléndez O.</p>
+    <!-- Pie de página (full width) -->
+    <footer class="w-full bg-white p-4 text-center text-gray-500 shadow-lg mt-auto">
+        <div class="max-w-5xl mx-auto">
+            <p>© 2025 Desarrollado por Javier Meléndez O.</p>
+        </div>
     </footer>
 
 </body>
