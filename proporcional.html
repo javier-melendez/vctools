@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Indexación IPC y Multa Proporcional</title>
+<style>
+:root {
+  --accent: #00695c;
+  --bg: #fafbfc;
+  --fg: #222;
+  --border: #e0e0e0;
+  --radius: 8px;
+}
+body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--fg); margin: 32px auto; max-width: 900px; line-height: 1.6; }
+h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.5em; font-weight: 600; }
+fieldset { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 1.5em; margin-bottom: 1.5em; box-shadow: none; }
+legend { font-weight: 600; color: var(--accent); padding: 0 0.5em; }
+label { font-size: 1em; font-weight: 500; margin-bottom: 0.25em; display: block; }
+input, select { width: 100%; padding: 0.6em; border: 1px solid var(--border); border-radius: var(--radius); background: #fafbfc; font-size: 1em; margin-bottom: 1em; box-sizing: border-box; }
+input[type="checkbox"] { width: auto; margin-right: 0.5em; }
+button { border: none; border-radius: var(--radius); padding: 0.7em 1.2em; font-size: 1em; font-weight: 500; background: var(--accent); color: #fff; cursor: pointer; margin-right: 0.5em; margin-bottom: 0.5em; transition: background 0.2s; }
+button.info { background: #0288d1; }
+button.warn { background: #fbc02d; color: #222; }
+button:active { opacity: 0.9; }
+.note { background: #e0f2f1; border-left: 3px solid var(--accent); padding: 1em; border-radius: var(--radius); margin-bottom: 1em; }
+pre { background: #f5f5f5; border: 1px solid var(--border); border-radius: var(--radius); padding: 1em; font-family: ui-monospace, monospace; font-size: 0.98em; overflow-x: auto; }
+.row { display: flex; gap: 1em; margin-bottom: 1em; flex-wrap: wrap; }
+.row > div { flex: 1 1 220px; min-width: 180px; }
+.actions { margin-top: 1em; display:flex; gap:.5em; flex-wrap:wrap; }
+.muted { color: #888; font-size: 0.98em; margin-bottom: 1.5em; }
+.small { font-size: 0.92em; color: #666; }
+.danger { color: #c62828; }
+.iconbtn{ width:40px; padding:.4em; text-align:center; }
+hr{ border:0; border-top:1px solid var(--border); margin:1.5em 0; }
+</style>
+</head>
+<body>
+  <h1>Indexación IPC y Multa Proporcional</h1>
+<p class="muted">
+    Esta herramienta permite calcular la multa proporcional por obligaciones o pagos incompletos, así como actualizar valores según el IPC. Incluye un buscador de expedientes y convierte montos a letras, todo en una interfaz sencilla y sin dependencias externas.
+</p></p>
+
+  <!-- MÓDULO 0: Buscador de expedientes -->
+  <fieldset>
+    <legend>📝 Consulta de expedientes</legend>
+    <div class="row">
+      <div>
+        <label for="ano_radicado">Año</label>
+        <input id="ano_radicado" type="number" min="20" max="25" step="1" value="24" />
+      </div>
+      <div>
+        <label for="numero_radicado">Nº Radicado</label>
+        <input id="numero_radicado" type="text" placeholder="" />
+      </div>
+      <div style="align-self:flex-end">
+        <button id="btn_buscar" class="info">🔍 Buscar</button>
+      </div>
+    </div>
+    <div id="buscador_msg" class="small"></div>
+  </fieldset>
+
+  <!-- MÓDULO 1: Obligaciones -->
+  <fieldset>
+    <legend>🔹 Cálculo de multa proporcional por obligaciones</legend>
+    <label for="multa_base">Multa base impuesta por el juez ($)</label>
+    <input id="multa_base" type="number" min="0" step="0.01" value="0" />
+
+    <div class="actions">
+      <button id="btn_add_obl" type="button">Agregar obligación (%)</button>
+      <button id="btn_calc_obl" type="button" class="info">Calcular</button>
+      <button id="btn_reset_obl" type="button" class="warn">Resetear</button>
+    </div>
+
+    <div id="obligaciones_container" class="row"></div>
+    <pre id="out_obl" style="display:none"></pre>
+  </fieldset>
+
+  <!-- MÓDULO 2: Pago incompleto -->
+  <fieldset>
+    <legend>🔹 Cálculo de multa proporcional por pago incompleto</legend>
+    <label for="valor_total">Valor total a pagar según sentencia ($)</label>
+    <input id="valor_total" type="number" min="0" step="0.01" value="0" />
+
+    <label for="valor_pagado">Valor efectivamente pagado por la demandada ($)</label>
+    <input id="valor_pagado" type="number" min="0" step="0.01" value="0" />
+
+    <label for="multa_total">Multa total impuesta ($)</label>
+    <input id="multa_total" type="number" min="0" step="0.01" value="0" />
+
+    <div class="actions">
+      <button id="btn_calc_pago" type="button" class="info">Calcular</button>
+      <button id="btn_reset_pago" type="button" class="warn">Resetear</button>
+    </div>
+
+    <pre id="out_pago" style="display:none"></pre>
+  </fieldset>
+
+  <!-- MÓDULO 3: Indexación IPC -->
+  <fieldset>
+    <legend>🔹 Cálculo de valor indexado según IPC</legend>
+    <label for="valor_inicial">Valor base a indexar ($)</label>
+    <input id="valor_inicial" type="number" min="0" step="0.01" value="0" />
+
+    <div class="row">
+      <div>
+        <label for="mes_inicial">Mes origen del valor</label>
+        <select id="mes_inicial"></select>
+      </div>
+      <div>
+        <label for="anio_inicial">Año origen del valor</label>
+        <select id="anio_inicial"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="mes_final">Mes del cálculo (actual)</label>
+        <select id="mes_final"></select>
+      </div>
+      <div>
+        <label for="anio_final">Año del cálculo (actual)</label>
+        <select id="anio_final"></select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="btn_calc_ipc" type="button" class="info">Calcular</button>
+      <button id="btn_reset_ipc" type="button" class="warn">Resetear</button>
+    </div>
+
+    <pre id="out_ipc" style="display:none"></pre>
+  </fieldset>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // ============================
+  // Constantes y datos
+  // ============================
+  const UVB_2025 = 11552;
+  const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+  const IPC = {
+    2003:[50.42,50.98,51.51,52.10,52.36,52.33,52.26,52.42,52.53,52.56,52.75,53.07],
+    2004:[53.54,54.18,54.71,54.96,55.17,55.51,55.49,55.51,55.67,55.66,55.82,55.99],
+    2005:[56.45,57.02,57.46,57.72,57.95,58.18,58.21,58.21,58.46,58.60,58.66,58.70],
+    2006:[59.02,59.41,59.83,60.09,60.29,60.48,60.73,60.96,61.14,61.05,61.19,61.33],
+    2007:[61.80,62.53,63.29,63.85,64.05,64.12,64.23,64.14,64.20,64.20,64.51,64.82],
+    2008:[65.51,66.50,67.04,67.51,68.14,68.73,69.06,69.19,69.06,69.30,69.49,69.80],
+    2009:[70.21,70.80,71.15,71.38,71.39,71.35,71.32,71.35,71.28,71.19,71.14,71.20],
+    2010:[71.69,72.28,72.46,72.79,72.87,72.95,72.92,73.00,72.90,72.84,72.98,73.45],
+    2011:[74.12,74.57,74.77,74.86,75.07,75.31,75.42,75.39,75.62,75.77,75.87,76.19],
+    2012:[76.75,77.22,77.31,77.42,77.66,77.72,77.70,77.73,77.96,78.08,77.98,78.05],
+    2013:[78.28,78.63,78.79,78.99,79.21,79.39,79.43,79.50,79.73,79.52,79.35,79.56],
+    2014:[79.95,80.45,80.77,81.14,81.53,81.61,81.73,81.90,82.01,82.14,82.25,82.47],
+    2015:[83.00,83.96,84.45,84.90,85.12,85.21,85.37,85.78,86.39,86.98,87.51,88.05],
+    2016:[89.19,90.33,91.18,91.63,92.10,92.54,93.02,92.73,92.68,92.62,92.73,93.11],
+    2017:[94.07,95.01,95.46,95.91,96.12,96.23,96.18,96.32,96.36,96.37,96.55,96.92],
+    2018:[97.53,98.22,98.45,98.91,99.16,99.31,99.18,99.30,99.47,99.59,99.70,100.00],
+    2019:[100.60,101.18,101.62,102.12,102.44,102.71,102.94,103.03,103.26,103.43,103.54,103.80],
+    2020:[104.24,104.94,105.53,105.70,105.36,104.97,104.97,104.96,105.29,105.23,105.08,105.48],
+    2021:[105.91,106.58,107.12,107.76,108.84,108.78,109.14,109.62,110.04,110.06,110.60,111.41],
+    2022:[113.26,115.11,116.26,117.71,118.70,119.31,120.27,121.50,122.63,123.51,124.46,126.03],
+    2023:[128.27,130.40,131.77,132.80,133.38,133.78,134.45,135.39,136.11,136.45,137.09,137.72],
+    2024:[138.98,140.49,141.48,142.32,142.92,143.38,143.67,143.67,144.02,143.83,144.22,144.88],
+    2025:[146.24,147.90,148.68,149.66,150.14,150.30,150.71,0,0,0,0,0]
+  };
+
+  // ============================
+  // Utils
+  // ============================
+  const money = (n)=> new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(Math.round(n||0));
+  const pct = (n)=> `${(n||0).toFixed(2)}%`;
+
+  // Número a letras (español, entero, hasta miles de millones)
+  function numeroALetras(n){
+    n = Math.round(Math.abs(n));
+    if(n===0) return 'CERO';
+    const u=['','UNO','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE'];
+    const e=['DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE'];
+    const d=['','DIEZ','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+    const c=['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+    function tens(n){
+      if(n<10) return u[n];
+      if(n<20) return e[n-10];
+      if(n<30) return n===20? 'VEINTE' : 'VEINTI' + u[n-20].toLowerCase();
+      const dec = Math.floor(n/10), uni = n%10;
+      return uni? `${d[dec]} Y ${u[uni]}` : d[dec];
+    }
+    function hundreds(n){
+      if(n===100) return 'CIEN';
+      const cen = Math.floor(n/100), rest = n%100;
+      return `${c[cen]} ${tens(rest)}`.trim();
+    }
+    function section(n, denomSing, denomPlu){
+      if(n===0) return '';
+      if(n===1) return ` ${denomSing}`;
+      return ` ${denomPlu}`;
+    }
+    function toWords(n){
+      if(n<100) return tens(n);
+      if(n<1000) return hundreds(n);
+      if(n<1000000){
+        const miles = Math.floor(n/1000), rest = n%1000;
+        const milesTxt = (miles===1? 'MIL' : `${toWords(miles)} MIL`).trim();
+        const restTxt = rest? ' ' + toWords(rest) : '';
+        return (milesTxt+restTxt).trim();
+      }
+      if(n<1000000000000){
+        const millones = Math.floor(n/1000000), rest = n%1000000;
+        const millTxt = (millones===1? 'UN MILLÓN' : `${toWords(millones)} MILLONES`).trim();
+        const restTxt = rest? ' ' + toWords(rest) : '';
+        return (millTxt+restTxt).trim();
+      }
+      return String(n); // fallback
+    }
+    return toWords(n);
+  }
+  function monedaConLetras(v){ const ent = Math.round(v||0); return `${numeroALetras(ent)} PESOS M/CTE (${money(ent)})`; }
+
+  // ============================
+  // Módulo 0: Buscador
+  // ============================
+  function construirURL(ano, numero){
+    const base = 'http://10.20.101.19/DescargaDocs/modulo/index.jsp';
+    const params = new URLSearchParams({ ano_radi: String(ano), nume_radi: String(numero||'').trim(), cont_radi: '  ', cons_radi: '0' });
+    return `${base}?${params.toString()}`;
+  }
+  document.getElementById('btn_buscar').addEventListener('click', ()=>{
+    const ano = document.getElementById('ano_radicado').value;
+    const numero = document.getElementById('numero_radicado').value;
+    const url = construirURL(ano, numero);
+    window.open(url, '_blank');
+    document.getElementById('buscador_msg').textContent = `Abriendo: ${url}`;
+  });
+
+  // ============================
+  // Módulo 1: Obligaciones
+  // ============================
+  const contObl = document.getElementById('obligaciones_container');
+  let oblIdx = 0;
+  function addObligacion(pctVal=100){
+    oblIdx += 1;
+    const wrap = document.createElement('div');
+    wrap.className = 'row';
+    wrap.style.alignItems = 'center';
+    wrap.innerHTML = `
+      <div>
+        <label>% obligación ${oblIdx}</label>
+        <input type="number" min="0" max="100" step="0.01" value="${pctVal}">
+      </div>
+      <div style="align-self:flex-end">
+        <button type="button" class="iconbtn warn" title="Eliminar">❌</button>
+      </div>`;
+    const btn = wrap.querySelector('button');
+    btn.addEventListener('click', ()=>{ contObl.removeChild(wrap); });
+    contObl.appendChild(wrap);
+  }
+  document.getElementById('btn_add_obl').addEventListener('click', ()=>addObligacion());
+  document.getElementById('btn_reset_obl').addEventListener('click', ()=>{ contObl.innerHTML=''; oblIdx=0; document.getElementById('multa_base').value=0; document.getElementById('out_obl').style.display='none'; });
+
+  document.getElementById('btn_calc_obl').addEventListener('click', ()=>{
+    const base = Number(document.getElementById('multa_base').value||0);
+    const inputs = contObl.querySelectorAll('input[type="number"]');
+    if(inputs.length===0){ alert('Debes agregar al menos una obligación.'); return; }
+    const porcentajes = Array.from(inputs).map(i=>Number(i.value||0));
+    const cumplimientoProm = porcentajes.reduce((a,b)=>a+b,0)/porcentajes.length;
+    const incumplimiento = 100 - cumplimientoProm;
+    const multaProp = base * (incumplimiento/100);
+    const uvb = multaProp / UVB_2025;
+    const out = document.getElementById('out_obl');
+    out.textContent = [
+      `✅ Cumplimiento promedio: ${pct(cumplimientoProm)}`,
+      `❌ Incumplimiento: ${pct(incumplimiento)}`,
+      `💰 Multa proporcional: ${monedaConLetras(multaProp)}`,
+      `🔢 Equivalente en UVB: ${uvb.toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2})} UVB`
+    ].join('\n');
+    out.style.display='block';
+  });
+
+  // ============================
+  // Módulo 2: Pago incompleto
+  // ============================
+  document.getElementById('btn_reset_pago').addEventListener('click', ()=>{
+    document.getElementById('valor_total').value=0;
+    document.getElementById('valor_pagado').value=0;
+    document.getElementById('multa_total').value=0;
+    document.getElementById('out_pago').style.display='none';
+  });
+  document.getElementById('btn_calc_pago').addEventListener('click', ()=>{
+    const total = Number(document.getElementById('valor_total').value||0);
+    const pagado = Number(document.getElementById('valor_pagado').value||0);
+    const multaTotal = Number(document.getElementById('multa_total').value||0);
+    const out = document.getElementById('out_pago');
+    if(total<=0){ out.textContent = '⚠️ El valor total no puede ser cero.'; out.style.display='block'; return; }
+    const porPagado = (pagado/total)*100;
+    const porIncumpl = 100 - porPagado;
+    const multaDesc = multaTotal * (porIncumpl/100);
+    const uvb = multaDesc / UVB_2025;
+    out.textContent = [
+      `✅ Porcentaje pagado: ${pct(porPagado)}`,
+      `❌ Porcentaje incumplido: ${pct(porIncumpl)}`,
+      `💰 Multa proporcional con descuento: ${monedaConLetras(multaDesc)}`,
+      `🔢 Equivalente en UVB: ${uvb.toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2})} UVB`
+    ].join('\n');
+    out.style.display='block';
+  });
+
+  // ============================
+  // Módulo 3: IPC
+  // ============================
+  const selMesIni = document.getElementById('mes_inicial');
+  const selMesFin = document.getElementById('mes_final');
+  const selAnioIni = document.getElementById('anio_inicial');
+  const selAnioFin = document.getElementById('anio_final');
+
+  function fillSelect(select, arr){ select.innerHTML = arr.map((v,i)=>`<option value="${i}">${v}</option>`).join(''); }
+  function fillSelectYears(select, years){ select.innerHTML = years.map(y=>`<option value="${y}">${y}</option>`).join(''); }
+
+  const years = Object.keys(IPC).map(Number).sort((a,b)=>a-b);
+  fillSelect(selMesIni, MESES); fillSelect(selMesFin, MESES);
+  fillSelectYears(selAnioIni, years); fillSelectYears(selAnioFin, years);
+  selMesIni.value = 0; selMesFin.value = 0; selAnioIni.value = years[0]; selAnioFin.value = years[years.length-1];
+
+  document.getElementById('btn_reset_ipc').addEventListener('click', ()=>{
+    document.getElementById('valor_inicial').value=0;
+    selMesIni.value = 0; selMesFin.value = 0;
+    selAnioIni.value = years[0]; selAnioFin.value = years[years.length-1];
+    document.getElementById('out_ipc').style.display='none';
+  });
+
+  document.getElementById('btn_calc_ipc').addEventListener('click', ()=>{
+    const valor = Number(document.getElementById('valor_inicial').value||0);
+    const y1 = Number(selAnioIni.value), y2 = Number(selAnioFin.value);
+    const m1 = Number(selMesIni.value), m2 = Number(selMesFin.value);
+    const ipc1 = (IPC[y1]||[])[m1]||0; const ipc2 = (IPC[y2]||[])[m2]||0;
+    const out = document.getElementById('out_ipc');
+    if(ipc1===0 || ipc2===0){ out.textContent = '⚠️ El IPC de alguna de las fechas seleccionadas no está disponible aún.'; out.style.display='block'; return; }
+    const valorIndexado = (ipc2/ipc1) * valor;
+    const diferencia = valorIndexado - valor;
+    out.textContent = [
+      `📈 IPC inicial (${MESES[m1]} ${y1}): ${ipc1}`,
+      `📈 IPC final (${MESES[m2]} ${y2}): ${ipc2}`,
+      `💵 Valor actualizado: ${monedaConLetras(valorIndexado)}`,
+      `🔺 Incremento total: ${monedaConLetras(diferencia)}`
+    ].join('\n');
+    out.style.display='block';
+  });
+
+  // Boot: una obligación por defecto
+  addObligacion(100);
+});
+</script>
+</body>
+</html>
