@@ -174,6 +174,17 @@
         let templateFilename = null;
         let detectedVars = [];
 
+        // --- Función para formatear fecha en letras ---
+        function formatDateToSpanish(dateStr) {
+          if (!dateStr) return "";
+          const meses = [
+            "enero", "febrero", "marzo", "abril", "mayo", "junio",
+            "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+          ];
+          const [year, month, day] = dateStr.split("-");
+          return `${parseInt(day)} de ${meses[parseInt(month) - 1]} de ${year}`;
+        }
+
         // Carga secuencial de scripts con fallback URLs
         function loadScript(url) {
           return new Promise((resolve, reject) => {
@@ -187,7 +198,6 @@
         }
 
         async function ensurePizzipAndSaver() {
-          // intentamos varios CDNs por robustez
           const pizUrls = [
             "https://unpkg.com/pizzip@3.1.8/dist/pizzip.min.js",
             "https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.5/pizzip.min.js",
@@ -196,31 +206,17 @@
             "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js",
             "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js",
           ];
-
-          // cargar PizZip
           let pizLoaded = false;
           for (const u of pizUrls) {
             try {
               await loadScript(u);
-              // algunos bundles exponen como PizZip o window.PizZip
-              if (
-                typeof window.PizZip !== "undefined" ||
-                typeof PizZip !== "undefined"
-              ) {
-                window.PizZip =
-                  window.PizZip ||
-                  (typeof PizZip !== "undefined" ? PizZip : undefined);
+              if (typeof window.PizZip !== "undefined") {
                 pizLoaded = true;
                 break;
               }
-            } catch (e) {
-              /* try next */
-            }
+            } catch (e) {}
           }
-          if (!pizLoaded)
-            throw new Error("No se pudo cargar PizZip desde CDN.");
-
-          // cargar FileSaver
+          if (!pizLoaded) throw new Error("No se pudo cargar PizZip.");
           let saverLoaded = false;
           for (const u of saverUrls) {
             try {
@@ -229,12 +225,9 @@
                 saverLoaded = true;
                 break;
               }
-            } catch (e) {
-              /* try next */
-            }
+            } catch (e) {}
           }
-          if (!saverLoaded)
-            throw new Error("No se pudo cargar FileSaver desde CDN.");
+          if (!saverLoaded) throw new Error("No se pudo cargar FileSaver.");
         }
 
         function log(msg) {
@@ -243,7 +236,6 @@
           logEl.scrollTop = logEl.scrollHeight;
         }
 
-        // escape XML text for safe insertion into <w:t>
         function escapeXml(s) {
           if (s == null) return "";
           return String(s)
@@ -252,7 +244,6 @@
             .replace(/>/g, "&gt;");
         }
 
-        // set nested by dotted key
         function setDeep(obj, dottedKey, value) {
           const parts = dottedKey.split(".");
           let cur = obj;
@@ -264,7 +255,6 @@
           cur[parts[parts.length - 1]] = value;
         }
 
-        // Extrae variables de un zip (recomponiendo runs <w:t>)
         function extractVarsFromZip(zip) {
           const files = Object.keys(zip.files || {});
           const placeholderRegex = /{{\s*([\w.]+)\s*}}/g;
@@ -272,22 +262,15 @@
             (n) => n.startsWith("word/") && n.endsWith(".xml")
           );
           const varsSet = new Set();
-
           for (const name of xmlNames) {
             const fileObj = zip.file(name);
             if (!fileObj) continue;
             let xml;
             try {
-              if (typeof fileObj.asText === "function") xml = fileObj.asText();
-              else if (typeof fileObj.asUint8Array === "function")
-                xml = new TextDecoder("utf-8").decode(fileObj.asUint8Array());
-              else xml = fileObj.asBinary ? fileObj.asBinary() : "";
+              xml = fileObj.asText();
             } catch (e) {
-              console.warn("No se pudo leer", name, e);
               continue;
             }
-
-            // conseguir todos los contenidos de <w:t>
             const tRegex = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
             let parts = [],
               m;
@@ -304,7 +287,6 @@
           return Array.from(varsSet);
         }
 
-        // Construye formulario
         function buildForm(vars) {
           formArea.innerHTML = "";
           if (!vars || vars.length === 0) {
@@ -314,9 +296,7 @@
             return;
           }
           const info = document.createElement("div");
-          info.innerHTML = `<p><b>Variables detectadas:</b> ${vars.join(
-            ", "
-          )}</p>`;
+          info.innerHTML = `<p><b>Variables detectadas:</b> ${vars.join(", ")}</p>`;
           formArea.appendChild(info);
 
           const container = document.createElement("div");
@@ -331,7 +311,8 @@
             label.htmlFor = "v__" + v.replace(/[^\w]/g, "_");
             field.appendChild(label);
 
-            if (/fecha|date/i.test(v)) {
+            const lower = v.toLowerCase();
+            if (lower.includes("fecha") && !lower.includes("fechas")) {
               const inp = document.createElement("input");
               inp.type = "date";
               inp.id = "v__" + v.replace(/[^\w]/g, "_");
@@ -343,6 +324,7 @@
               inp.placeholder = "Valor para " + v;
               field.appendChild(inp);
             }
+
             container.appendChild(field);
           });
 
@@ -350,7 +332,6 @@
           reloadBtn.classList.remove("hidden");
         }
 
-        // lee contexto del form respectando dot notation
         function readContextFromForm(vars) {
           const ctx = {};
           vars.forEach((v) => {
@@ -358,16 +339,15 @@
             const el = document.getElementById(id);
             if (!el) return;
             let val = el.value;
-            // si es date, dejamos ISO (puedes formatear si quieres)
+            if (el.type === "date" && val) {
+              val = formatDateToSpanish(val);
+            }
             setDeep(ctx, v, val);
           });
           return ctx;
         }
 
-        // Reemplaza placeholders dentro de un xml actuando sobre los <w:t> (runs).
-        // Strategy: obtenemos array of run texts, calculamos posiciones en concatenación y reemplazamos por completo
         function replacePlaceholdersInXml(xml, replacements) {
-          // obtener runs
           const tRegex = /(<w:t[^>]*>)([\s\S]*?)(<\/w:t>)/g;
           let runs = [];
           let match;
@@ -380,9 +360,7 @@
               full: match[0],
             });
           }
-          if (runs.length === 0) return xml; // nada que hacer
-
-          // texts y longitudes
+          if (runs.length === 0) return xml;
           const texts = runs.map((r) => r.text || "");
           const cum = [];
           let s = 0;
@@ -391,8 +369,6 @@
             cum.push(s);
           }
           const combined = texts.join("");
-
-          // buscar placeholders en combined
           const placeholderRegex = /{{\s*([\w.]+)\s*}}/g;
           const matches = [];
           let mm;
@@ -405,56 +381,39 @@
             });
           }
           if (matches.length === 0) return xml;
-
-          // procesar desde el final para evitar conflictos de índice
           for (let mi = matches.length - 1; mi >= 0; mi--) {
             const m = matches[mi];
             const startIdx = m.index;
             const endIdx = m.index + m.length - 1;
-            // encontrar startRun
             let startRun = 0;
-            while (startRun < cum.length && startIdx >= cum[startRun])
-              startRun++;
+            while (startRun < cum.length && startIdx >= cum[startRun]) startRun++;
             const runStartOffset =
               startRun === 0 ? startIdx : startIdx - cum[startRun - 1];
-            // encontrar endRun
             let endRun = 0;
             while (endRun < cum.length && endIdx >= cum[endRun]) endRun++;
             const runEndOffset =
               endRun === 0 ? endIdx : endIdx - cum[endRun - 1];
-
-            // replacement value
             const replRaw = m.key in replacements ? replacements[m.key] : "";
             const repl = escapeXml(String(replRaw));
-
-            // build new text for startRun: prefix text before placeholder + replacement + suffix from endRun after placeholder
             const before = texts[startRun].slice(0, runStartOffset);
             const after = texts[endRun].slice(runEndOffset + 1);
             texts[startRun] = before + repl + after;
-
-            // blank the middle runs
             for (let r = startRun + 1; r <= endRun; r++) texts[r] = "";
           }
-
-          // reconstruir xml reemplazando solo el contenido de cada run
-          let out = "";
-          let lastIndex = 0;
-          let ri = 0;
-          tRegex.lastIndex = 0;
-          // construiremos xml paso a paso: iteramos sobre las coincidencias originales con exec otra vez
           let outXml = "";
           let curPos = 0;
+          let ri = 0;
+          tRegex.lastIndex = 0;
           while ((match = tRegex.exec(xml)) !== null) {
-            outXml += xml.slice(curPos, match.index); // lo que hay entre runs
+            outXml += xml.slice(curPos, match.index);
             outXml += runs[ri].prefix + texts[ri] + runs[ri].suffix;
             curPos = match.index + match[0].length;
             ri++;
           }
-          outXml += xml.slice(curPos); // resto del xml
+          outXml += xml.slice(curPos);
           return outXml;
         }
 
-        // Generar y descargar: aplicamos reemplazos a todos los word/*.xml del ZIP
         function generateAndDownload() {
           try {
             if (!originalZip) {
@@ -462,10 +421,8 @@
               return;
             }
             const ctx = readContextFromForm(detectedVars);
-            // map de reemplazos "llave"->valor (aquí las claves son literales incl. puntos)
             const replacements = {};
             detectedVars.forEach((k) => {
-              // obtener value desde ctx: buscaremos recursivamente
               const parts = k.split(".");
               let cur = ctx;
               let val = "";
@@ -479,13 +436,10 @@
               if (cur != null && cur !== undefined) val = cur;
               replacements[k] = val;
             });
-
-            // clone zip (usamos generate then re-open to avoid mutating original file objects)
             const ab = originalZip.generate
               ? originalZip.generate({ type: "arraybuffer" })
               : originalZip;
             const zip2 = new PizZip(ab);
-
             const files = Object.keys(zip2.files || {});
             const xmlNames = files.filter(
               (n) => n.startsWith("word/") && n.endsWith(".xml")
@@ -495,20 +449,15 @@
               if (!f) continue;
               let xml;
               try {
-                xml = f.asText
-                  ? f.asText()
-                  : new TextDecoder("utf-8").decode(f.asUint8Array());
+                xml = f.asText();
               } catch (e) {
-                console.warn("No se pudo leer", name, e);
                 continue;
               }
               const newXml = replacePlaceholdersInXml(xml, replacements);
-              // si cambió, actualizar
               if (newXml !== xml) {
                 zip2.file(name, newXml);
               }
             }
-
             const outBlob = zip2.generate({
               type: "blob",
               mimeType:
@@ -524,13 +473,10 @@
             log("✅ Documento generado: " + outName);
           } catch (err) {
             console.error(err);
-            log(
-              "❌ Error al generar: " + (err && err.message ? err.message : err)
-            );
+            log("❌ Error al generar: " + (err && err.message ? err.message : err));
           }
         }
 
-        // HANDLER de archivo
         async function onFileSelected(ev) {
           logEl.textContent = "";
           generateBtn.disabled = true;
@@ -542,7 +488,6 @@
             return;
           }
           templateFilename = f.name;
-
           try {
             await ensurePizzipAndSaver();
           } catch (e) {
@@ -550,7 +495,6 @@
             log("Error al cargar librerías: " + e.message);
             return;
           }
-
           const reader = new FileReader();
           reader.onload = function (e) {
             try {
@@ -558,15 +502,13 @@
               const zip = new PizZip(arrayBuffer);
               originalZip = zip;
               detectedVars = extractVarsFromZip(zip);
-
               if (detectedVars.length === 0) {
                 formArea.innerHTML =
-                  "<p><i>No se encontraron variables {{...}}. Asegúrate de usar llaves dobles y que las llaves + nombre estén en el mismo estilo o, si están partidas, que el documento no use campos especiales complicados.</i></p>";
+                  "<p><i>No se encontraron variables {{...}}. Asegúrate de usar llaves dobles.</i></p>";
                 log("No se detectaron variables.");
                 generateBtn.disabled = true;
                 return;
               }
-
               buildForm(detectedVars);
               log("Plantilla procesada. Variables: " + detectedVars.join(", "));
             } catch (err) {
@@ -582,7 +524,6 @@
           reader.readAsArrayBuffer(f);
         }
 
-        // Inicialización
         fileInput.addEventListener("change", onFileSelected);
         generateBtn.addEventListener("click", generateAndDownload);
         reloadBtn.addEventListener("click", () => {
