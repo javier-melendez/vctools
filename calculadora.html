@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calculadora de términos</title>
-  <style>
+<style>
 :root {
   --accent: #00695c;
   --bg: #fafbfc;
@@ -19,7 +19,15 @@ body {
   margin: 32px auto;
   max-width: 600px;
   line-height: 1.6;
+  padding: 0 16px; /* margen interno lateral en móviles */
 }
+
+@media (min-width: 601px) {
+  body {
+    padding: 0; /* en pantallas grandes, sin padding lateral extra */
+  }
+}
+
 h1 {
   font-size: 1.5rem;
   color: var(--accent);
@@ -68,13 +76,13 @@ button {
   background: var(--accent);
   color: #fff;
   cursor: pointer;
-  margin-right: 0.5em;
   margin-bottom: 0.5em;
   transition: background 0.2s;
 }
 button.info { background: #0288d1; }
 button.warn { background: #fbc02d; color: #222; }
 button:active { opacity: 0.9; }
+
 .note {
   background: #e0f2f1;
   border-left: 3px solid var(--accent);
@@ -101,9 +109,18 @@ pre {
   flex: 1 1 180px;
   min-width: 140px;
 }
+
 .actions {
   margin-top: 1em;
+  display: flex;
+  flex-wrap: nowrap;   /* todos en una sola fila */
+  gap: 0.5em;          /* espacio entre botones */
 }
+.actions button {
+  flex: 1 1 0;         /* cada botón ocupa espacio proporcional */
+  min-width: 0;        /* permite que se encojan sin romper el layout */
+}
+
 .muted {
   color: #888;
   font-size: 0.98em;
@@ -116,7 +133,8 @@ pre {
 .danger {
   color: #c62828;
 }
-  </style>
+</style>
+
 </head>
 <body>
   <h1>Calculadora de términos</h1>
@@ -177,7 +195,7 @@ pre {
     <div class="actions">
       <button id="btn_calc" class="primary">Calcular</button>
       <button id="btn_detalle" class="info">Detalle</button>
-      <button id="btn_reset" class="warn">🔄 Resetear</button>
+      <button id="btn_reset" class="warn">Resetear</button>
     </div>
   </fieldset>
 
