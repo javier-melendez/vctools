@@ -12,6 +12,11 @@
   --border: #e0e0e0;
   --radius: 8px;
 }
+
+html, body {
+  overscroll-behavior: none; /* evita rebote/elastic scroll */
+}
+
 body {
   font-family: system-ui, sans-serif;
   background: var(--bg);
@@ -19,12 +24,12 @@ body {
   margin: 32px auto;
   max-width: 600px;
   line-height: 1.6;
-  padding: 0 16px; /* margen interno lateral en móviles */
+  padding: 0 16px 60px; /* margen lateral + aire inferior extra */
 }
 
 @media (min-width: 601px) {
   body {
-    padding: 0; /* en pantallas grandes, sin padding lateral extra */
+    padding: 0 0 60px; /* en pantallas grandes, sin padding lateral extra */
   }
 }
 
@@ -119,6 +124,7 @@ pre {
 .actions button {
   flex: 1 1 0;         /* cada botón ocupa espacio proporcional */
   min-width: 0;        /* permite que se encojan sin romper el layout */
+  text-align: center;  /* centra el texto */
 }
 
 .muted {
