@@ -1,190 +1,189 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caja de herramientas - Verificación de cumplimiento</title>
-    <!-- Incluye Tailwind CSS desde CDN para un estilo rápido y responsive -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Usa la fuente 'Inter' de Google Fonts para una tipografía limpia -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Iconos de Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --accent: #00695c;
-            --bg: #fafbfc;
-            --fg: #222;
-            --border: #e0e0e0;
-            --radius: 12px;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
-        }
-        header, footer {
-            background: #fff;
-        }
-        .link-button {
-            border-radius: var(--radius);
-            transition: background 0.2s, transform 0.2s;
-        }
-        .link-button:hover {
-            transform: scale(1.05);
-        }
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #121212;
-                color: #e0e0e0;
-            }
-            header {
-                background-color: #1f1f1f;
-            }
-            footer {
-                background-color: #1a1a1a;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caja de herramientas - Verificación de cumplimiento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --accent: #00695c; }
+    body { font-family: 'Inter', sans-serif; background: #fafbfc; color: #222; }
+    header, footer { background: #fff; }
+    .link-button { border-radius: 12px; transition: background 0.2s, transform 0.2s; }
+    .link-button:hover { transform: scale(1.05); }
+  </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Encabezado de la página (full width) -->
-    <header class="w-full p-6 md:p-10 text-center shadow-lg">
-        <div class="max-w-5xl mx-auto">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--accent)">
-                Grupo de trabajo para la verificación del cumplimiento
-            </h1>
-            <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
-        </div>
-    </header>
+  <!-- Encabezado -->
+  <header class="w-full p-6 md:p-10 text-center shadow-lg">
+    <div class="max-w-5xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--accent)">
+        Grupo de trabajo para la verificación del cumplimiento
+      </h1>
+      <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
+    </div>
+  </header>
 
-    <!-- Contenedor principal de los botones -->
-    <main class="flex-grow flex items-center justify-center p-4">
-        <div class="w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
-            
-            <!-- Botón nuevo (2.0 beta) -->
-            <a href="calculadora.html"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #2e7d32"
-               target="_blank">
-                <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
-                <span class="whitespace-nowrap">Contador de términos 2.0</span>
-            </a>
+  <!-- Contenido principal -->
+  <main class="flex-grow flex flex-col items-center justify-start p-6 space-y-8">
 
-            <!-- Botón 1 
-            <a href="https://colab.research.google.com/drive/18Ki2pEe4SQi4DisBMvOwtUjad_J7-SJv?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #1565c0"
-               target="_blank">
-                <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Contador de términos sencillo</span>
-            </a> -->
-
-            <!-- Botón 3 
-            <a href="https://colab.research.google.com/drive/1p-4faW2iIEhWOA2zfPj8sHAKJfpH2fDv?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #6a1b9a"
-               target="_blank">
-                <i class="fas fa-chart-line mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Index y proporcional</span>
-            </a> -->
-
-            <!-- Botón nuevo index y proporcional (beta) -->
-            <a href="proporcional.html"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: var(--accent)"
-               target="_blank">
-                <i class="fas fa-chart-pie mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Index y proporcional</span>
-            </a>
-
-                        <a href="filler.html"
-                class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-                style="background: #00bcd4"
-                target="_blank">
-                 <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
-                 <span>Filler 3.0 (beta)</span>
-            </a>
-
-            <!-- Botón 4 -->
-            <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #ef6c00"
-               target="_blank">
-                <i class="fas fa-flask mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Aplicativo de multas 2.0</span>
-            </a>
-
-            <!-- Botón 5 -->
-            <a href="https://colab.research.google.com/drive/1gJ3nGU4U4FwBz9yTr55R-gVaNBTW7_P1?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #c62828"
-               target="_blank">
-                <i class="fas fa-filter mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Filtro 2.0</span>
-            </a>
-
-            <!-- Botón 6 
-            <a href="https://colab.research.google.com/drive/1QYgJxMk8FuaKPP5Yhm_4aieruhRYxy3F?usp=sharing"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #ad1457"
-               target="_blank">
-                <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Filler 2.0</span>
-            </a> -->
-
-            <!-- Botón Filler 3.0 (beta) -->
-
-            <!-- Botón 7 -->
-            <a href="https://its2sicgov-my.sharepoint.com/:f:/g/personal/jamelendez_sic_gov_co/ErTSPuYhCv1KuukYsWxCFVQBRhLYBthKqN9rhIbuWOakNQ?e=PgmaT3"
-               class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-               style="background: #fbc02d; color:#222"
-               target="_blank">
-                <i class="fas fa-folder mr-3 text-xl group-hover:animate-pulse"></i>
-                <span>Plantillas</span>
-            </a>
-        </div>
-    </main>
-
-    <!-- Información para tener en cuenta -->
-    <section class="max-w-5xl mx-auto my-8 px-4 space-y-6">
-        <!-- ... contenido igual ... -->
-    </section>
-
-    <!-- Script copiar -->
-    <script>
-    function copiarAviso() {
-        const texto = document.getElementById('aviso-texto').innerText;
-        const msg = document.getElementById('mensaje-copiado');
-        navigator.clipboard.writeText(texto).then(() => {
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 2000);
-        });
-    }
-    function copiarTexto(id) {
-        const texto = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(texto);
-        alert("Texto copiado al portapapeles ✅");
-    }
-    </script>
-
-    <!-- Sección de contacto -->
-    <div class="p-6 text-center text-gray-600 max-w-5xl mx-auto">
-        <p class="text-sm">
-            ¿Tienes sugerencias? Escríbeme a 
-            <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a>
-        </p>
+    <!-- Buscador compacto -->
+    <div class="w-full max-w-2xl mx-auto">
+      <div class="flex items-center gap-2 bg-white shadow-md rounded-full px-4 py-2">
+        <input id="ano_radicado" type="number" min="20" max="25" step="1" value="24"
+               class="w-20 border rounded-lg px-2 py-1 text-sm" placeholder="Año" />
+        <input id="numero_radicado" type="text"
+               class="flex-grow border rounded-lg px-2 py-1 text-sm" placeholder="Nº Radicado" />
+        <button id="btn_buscar"
+                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-full text-sm font-medium">
+          🔍 Buscar
+        </button>
+      </div>
+      <div id="buscador_msg" class="text-xs text-gray-600 mt-1"></div>
     </div>
 
-    <!-- Pie de página (full width) -->
-    <footer class="w-full p-4 text-center text-gray-500 shadow-lg mt-auto">
-        <div class="max-w-5xl mx-auto">
-            <p>© 2025 Desarrollado por Javier Meléndez O.</p>
+    <!-- Caja de botones -->
+    <div class="w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
+
+      <a href="calculadora.html"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: #2e7d32" target="_blank">
+        <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Contador de términos 2.0</span>
+      </a>
+
+      <a href="proporcional.html"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: var(--accent)" target="_blank">
+        <i class="fas fa-chart-pie mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Index y proporcional</span>
+      </a>
+
+      <a href="filler.html"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: #00bcd4" target="_blank">
+        <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Filler 3.0 (beta)</span>
+      </a>
+
+      <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: #ef6c00" target="_blank">
+        <i class="fas fa-flask mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Aplicativo de multas 2.0</span>
+      </a>
+
+      <a href="https://colab.research.google.com/drive/1gJ3nGU4U4FwBz9yTr55R-gVaNBTW7_P1?usp=sharing"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: #c62828" target="_blank">
+        <i class="fas fa-filter mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Filtro 2.0</span>
+      </a>
+
+      <a href="https://its2sicgov-my.sharepoint.com/:f:/g/personal/jamelendez_sic_gov_co/ErTSPuYhCv1KuukYsWxCFVQBRhLYBthKqN9rhIbuWOakNQ?e=PgmaT3"
+         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
+         style="background: #fbc02d; color:#222" target="_blank">
+        <i class="fas fa-folder mr-3 text-xl group-hover:animate-pulse"></i>
+        <span>Plantillas</span>
+      </a>
+    </div>
+
+    <!-- Información a tener en cuenta -->
+    <section class="w-full max-w-5xl mx-auto mt-12">
+      <h2 class="text-2xl font-bold mb-6 text-center" style="color: var(--accent)">📌 Información a tener en cuenta</h2>
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Empresa 1 -->
+        <div class="bg-white p-5 rounded-xl shadow">
+          <h3 class="font-bold text-lg mb-2">PRABYC INGENIEROS SAS EN TOMA DE POSESIÓN</h3>
+          <p class="text-sm text-gray-600">NIT: 800173155-7 | Fecha: 25 de septiembre de 2024</p>
+          <p class="mt-2 text-sm leading-relaxed">
+            Mediante Resolución No. 1520-00000304 del 18 de septiembre de 2024, la Alcaldía Municipal de Ibagué ordenó la toma de posesión inmediata para administrar los bienes, haberes y negocios de la sociedad, por un plazo de un (1) año, prorrogable por otro año más.
+          </p>
         </div>
-    </footer>
+
+        <!-- Empresa 2 -->
+        <div class="bg-white p-5 rounded-xl shadow">
+          <h3 class="font-bold text-lg mb-2">CASAMAESTRA S.A.S</h3>
+          <p class="text-sm text-gray-600">NIT: 901016362-1 | Inicial: 15/03/2023 | Prórroga: 27/03/2025</p>
+          <p class="mt-2 text-sm leading-relaxed">
+            Resolución No. 039 del 10 de marzo de 2023 de Planeación Municipal de Armenia decretó la toma de posesión de bienes y haberes de la sociedad. <br>
+            Posteriormente, Resolución No. 018 del 06 de marzo de 2025 prorrogó por un (1) año la intervención y toma de posesión para liquidar los negocios de la sociedad.
+          </p>
+        </div>
+
+        <!-- Empresa 3 -->
+        <div class="bg-white p-5 rounded-xl shadow">
+          <h3 class="font-bold text-lg mb-2">GEO CASAMAESTRA PROYECTO SEVILLA S.A.S.</h3>
+          <p class="text-sm text-gray-600">NIT: 900978783-0 | Inicial: 10/01/2024 | Prórroga: 12/12/2024</p>
+          <p class="mt-2 text-sm leading-relaxed">
+            Resolución No. 2047 del 29 de diciembre de 2023 de la Alcaldía de Dosquebradas ordenó la toma de posesión para administrar la sociedad. <br>
+            Luego, Resolución No. 1450 del 26 de octubre de 2024 decretó la toma de posesión de todos los bienes y haberes con fines de administración.
+          </p>
+        </div>
+
+        <!-- Empresa 4 -->
+        <div class="bg-white p-5 rounded-xl shadow">
+          <h3 class="font-bold text-lg mb-2">FAST COLOMBIA S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
+          <p class="text-sm text-gray-600">NIT: 900313349-3 | Fecha: 30/06/2023</p>
+          <p class="mt-2 text-sm leading-relaxed">
+            Por Auto del 21 de junio de 2023 de la Superintendencia de Sociedades, inscrito el 30 de junio de 2023, se decretó embargo de bienes sujetos a registro dentro del proceso de liquidación judicial de la sociedad.
+          </p>
+        </div>
+
+        <!-- Empresa 5 -->
+        <div class="bg-white p-5 rounded-xl shadow">
+          <h3 class="font-bold text-lg mb-2">ULTRA AIR S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
+          <p class="text-sm text-gray-600">NIT: 901428193-1 | Fecha: 18/07/2023</p>
+          <p class="mt-2 text-sm leading-relaxed">
+            Por Auto No. 400-009319 del 29 de junio de 2023 de la Superintendencia de Sociedades de Medellín, inscrito el 18 de julio de 2023, se dio inicio al proceso de liquidación judicial. La declaración produjo la cesación de funciones de administradores y órganos sociales.
+          </p>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Script buscador -->
+  <script>
+    function construirURL(ano, numero){
+      const base = 'http://10.20.101.19/DescargaDocs/modulo/index.jsp';
+      const params = new URLSearchParams({
+        ano_radi: String(ano),
+        nume_radi: String(numero || '').trim(),
+        cont_radi: '  ',
+        cons_radi: '0'
+      });
+      return `${base}?${params.toString()}`;
+    }
+    document.getElementById('btn_buscar').addEventListener('click', ()=>{
+      const ano = document.getElementById('ano_radicado').value;
+      const numero = document.getElementById('numero_radicado').value;
+      const url = construirURL(ano, numero);
+      window.open(url, '_blank');
+      document.getElementById('buscador_msg').textContent = `Abriendo: ${url}`;
+    });
+  </script>
+
+  <!-- Sección de contacto -->
+  <div class="p-6 text-center text-gray-600 max-w-5xl mx-auto">
+    <p class="text-sm">
+      ¿Tienes sugerencias? Escríbeme a 
+      <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a>
+    </p>
+  </div>
+
+  <!-- Pie de página -->
+  <footer class="w-full p-4 text-center text-gray-500 shadow-lg mt-auto">
+    <div class="max-w-5xl mx-auto">
+      <p>© 2025 Desarrollado por Javier Meléndez O.</p>
+    </div>
+  </footer>
 
 </body>
 </html>

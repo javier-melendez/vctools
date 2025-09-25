@@ -144,25 +144,6 @@ hr{ border:0; border-top:1px solid var(--border); margin:1.5em 0; }
     Esta herramienta permite calcular la multa proporcional por obligaciones o pagos incompletos, así como actualizar valores según el IPC. Incluye un buscador de expedientes y convierte montos a letras, todo en una interfaz sencilla y sin dependencias externas.
 </p></p>
 
-  <!-- MÓDULO 0: Buscador de expedientes -->
-  <fieldset>
-    <legend>📝 Consulta de expedientes</legend>
-    <div class="row">
-      <div>
-        <label for="ano_radicado">Año</label>
-        <input id="ano_radicado" type="number" min="20" max="25" step="1" value="24" />
-      </div>
-      <div>
-        <label for="numero_radicado">Nº Radicado</label>
-        <input id="numero_radicado" type="text" placeholder="" />
-      </div>
-      <div style="align-self:flex-end">
-        <button id="btn_buscar" class="info">🔍 Buscar</button>
-      </div>
-    </div>
-    <div id="buscador_msg" class="small"></div>
-  </fieldset>
-
   <!-- MÓDULO 1: Obligaciones -->
   <fieldset>
     <legend>🔹 Cálculo de multa proporcional por obligaciones</legend>
