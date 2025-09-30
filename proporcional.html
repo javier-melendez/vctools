@@ -301,22 +301,6 @@ document.addEventListener('DOMContentLoaded', function(){
   function monedaConLetras(v){ const ent = Math.round(v||0); return `${numeroALetras(ent)} PESOS M/CTE (${money(ent)})`; }
 
   // ============================
-  // Módulo 0: Buscador
-  // ============================
-  function construirURL(ano, numero){
-    const base = 'http://10.20.101.19/DescargaDocs/modulo/index.jsp';
-    const params = new URLSearchParams({ ano_radi: String(ano), nume_radi: String(numero||'').trim(), cont_radi: '  ', cons_radi: '0' });
-    return `${base}?${params.toString()}`;
-  }
-  document.getElementById('btn_buscar').addEventListener('click', ()=>{
-    const ano = document.getElementById('ano_radicado').value;
-    const numero = document.getElementById('numero_radicado').value;
-    const url = construirURL(ano, numero);
-    window.open(url, '_blank');
-    document.getElementById('buscador_msg').textContent = `Abriendo: ${url}`;
-  });
-
-  // ============================
   // Módulo 1: Obligaciones
   // ============================
   const contObl = document.getElementById('obligaciones_container');
