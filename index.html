@@ -98,6 +98,46 @@
       <h2 class="text-2xl font-bold mb-6 text-center" style="color: var(--accent)">📌 Información a tener en cuenta</h2>
       <div class="grid md:grid-cols-2 gap-6">
 
+        <!-- Tarjeta Multas con botón copiar -->
+<div class="bg-white p-5 rounded-xl shadow relative">
+  <h3 class="font-bold text-lg mb-2">Resuelve multas con dirección de la SIC actualizada</h3>
+
+  <!-- Vista corta (resumen) -->
+  <p class="mt-2 text-sm leading-relaxed text-gray-700">
+    Copia el texto completo del Resuelve con la información de pago actualizada.
+  </p>
+
+  <!-- Botón copiar -->
+  <button onclick="copiarMultas()" 
+          class="absolute down-3 right-3 bg-sky-600 hover:bg-sky-700 text-white px-3 py-1 rounded-full text-xs shadow">
+    📋 Copiar
+  </button>
+</div>
+
+<!-- Texto completo oculto -->
+<pre id="multas_texto" style="display:none; white-space:pre-wrap;">
+SEGUNDO: Imponer a IBxxxxxx identificada con identificada con cédula de ciudadanía No. xxxxxxxx, una multa por valor de xxxxx UVB, que en pesos colombianos equivalen a la suma de xxxxxxxx PESOS M/CTE ($zzzzzzzzz), a favor de la Superintendencia de Industria y Comercio, los cuales corresponden a una séptima parte del salario mínimo legal vigente por CUARENTA Y SIETE (47) días de retardo del cumplimiento de lo ordenado, según lo expuesto en la parte motiva de la presente providencia.   
+
+PARÁGRAFO: El valor de la sanción pecuniaria que por este auto se impone, deberá consignarse en efectivo o cheque de gerencia en la Cuenta Corriente No. 062-87028-2 del Banco de Bogotá, a nombre de la Superintendencia de Industria y Comercio identificada con el NIT 800.176.089-2. El pago deberá efectuarse dentro de los cinco (5) días hábiles siguientes a la ejecutoria de la presente providencia y acreditarse en la ventanilla de Tesorería de esta Superintendencia con el original de la consignación, donde le expedirán el recibo de caja aplicado al auto sancionatorio. Vencido este plazo se cobrarán intereses por cada día de retardo, liquidados a la tasa del 12% efectivo anual.
+ 
+Para el efecto podrán utilizarse los siguientes medios de pago:
+ 
+- A través del botón de pago PSE o Cupón de Pago disponible en la sede electrónica de la Superintendencia https://sedeelectronica.sic.gov.co/ en la sección de Servicios / pagos de multas.
+- Utilizando el formato universal de recaudo, consignando en efectivo o cheque de gerencia en el Banco de Bogotá a la cuenta corriente No. 062-87028-2 del Banco de Bogotá a nombre de la Superintendencia de Industria y Comercio NIT 800.176.089-2, indicando la referencia 1 del formato y código rentístico 03, seguido del número del auto que impone la multa y en la referencia 2 el número de identificación del multado. En este caso deberá acreditarse el pago, enviando el respectivo soporte través del correo electrónico contactenos@sic.gov.co donde se expedirá el recibo de caja aplicado a la resolución sancionatoria, o en su defecto, entregar el soporte de pago en la ventanilla de la Tesorería de la Superintendencia de Industria y Comercio, ubicada en la Calle 24 Nº 7 - 43 Local 108 en la ciudad de Bogotá D.C.
+</pre>
+
+<script>
+  function copiarMultas(){
+    const texto = document.getElementById("multas_texto").innerText;
+    navigator.clipboard.writeText(texto).then(()=>{
+      alert("✅ Texto completo copiado al portapapeles");
+    }).catch(err=>{
+      alert("❌ No se pudo copiar: " + err);
+    });
+  }
+</script>
+
+
         <!-- Empresa 1 -->
         <div class="bg-white p-5 rounded-xl shadow">
           <h3 class="font-bold text-lg mb-2">PRABYC INGENIEROS SAS EN TOMA DE POSESIÓN</h3>
