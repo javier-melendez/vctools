@@ -131,6 +131,20 @@ pre {
 .danger {
   color: #c62828;
 }
+
+    /* --- Colores reactivos para el resultado --- */
+.resultado-ok {
+  border: 3px solid #2e7d32;
+}
+
+.resultado-bad {
+  border: 3px solid #c62828;
+}
+
+.resultado-neutral {
+  border: 3px solid transparent;
+}
+
 </style>
 </head>
 <body>
@@ -147,9 +161,11 @@ pre {
       <div>
         <label for="tipo_notif">📢 Medio</label>
         <select id="tipo_notif">
+          <option value=""></option>
           <option>Estados</option>
           <option>Audiencia</option>
         </select>
+
       </div>
     </div>
 
@@ -266,26 +282,42 @@ document.addEventListener('DOMContentLoaded', function(){
   function reset(){el('fecha_notif').value='';el('tipo_notif').value='Estados';el('modo_cond').value='dias';toggleCond();el('dias_cond').value=0;el('fecha_cond').value='';el('modo_cumpl').value='dias';toggleModo();el('dias_cumpl').value=15;el('meses_cumpl').value=1;el('fecha_fija').value='';el('dias_informe').value=30;el('fecha_informe').value='';el('sin_noticia').checked=false;el('fecha_informe').disabled=false;el('resultado').style.display='none';el('detalle').style.display='none';el('aviso').style.display='none';}
   el('btn_reset').addEventListener('click',reset);
 
-  // --- cálculo ---
-  function calcular(mostrarDetalle){
-    const notifStr=el('fecha_notif').value;if(!notifStr){alert('Selecciona la fecha de notificación.');return;}
-    const sinNoticia=el('sin_noticia').checked;const informeStr=el('fecha_informe').value;
-    if(!sinNoticia&&!informeStr){alert('Selecciona la fecha de noticia de incumplimiento o marca "Sin noticia".');return;}
+// --- cálculo ---
+function calcular(mostrarDetalle){
 
-    const notif=parseYMD(notifStr);
-    const anios=Array.from({length:6},(_,i)=>notif.getFullYear()+i);
-    const festivos=holidaysCOForYears(anios[0],anios[anios.length-1]);
+    // 🚫 Validación: exigir que haya un medio seleccionado
+    const tipo = el('tipo_notif').value;
+    if (!tipo) {
+      alert('Selecciona un medio de notificación antes de calcular.');
+      return;
+    }
 
-    const tipo=el('tipo_notif').value;
-    const diasEjecutoria=(tipo==='Estados')?3:0;
-    const {fechaFinal:fechaEjecutoria,logs:logEjec}=sumarDiasHabilesJudiciales(notif,diasEjecutoria,festivos);
+    const notifStr = el('fecha_notif').value;
+    if (!notifStr) {
+      alert('Selecciona la fecha de notificación.');
+      return;
+    }
+
+    const sinNoticia = el('sin_noticia').checked;
+    const informeStr = el('fecha_informe').value;
+    if (!sinNoticia && !informeStr) {
+      alert('Selecciona la fecha de noticia de incumplimiento o marca "Sin noticia".');
+      return;
+    }
+
+    const notif = parseYMD(notifStr);
+    const anios = Array.from({length:6},(_,i)=>notif.getFullYear()+i);
+    const festivos = holidaysCOForYears(anios[0],anios[anios.length-1]);
+
+    const diasEjecutoria = (tipo === 'Estados') ? 3 : 0;
+    const {fechaFinal: fechaEjecutoria, logs: logEjec} = sumarDiasHabilesJudiciales(notif, diasEjecutoria, festivos);
 
     // obligación condicional
     let baseCumpl=fechaEjecutoria,logCond=[],descriptorCond='';
     const modoCond=el('modo_cond').value;
     if(modoCond==='dias'){const n=Number(el('dias_cond').value||0);if(n>0){const r=sumarDiasHabilesJudiciales(fechaEjecutoria,n,festivos);baseCumpl=r.fechaFinal;logCond=r.logs;descriptorCond=`${n} día(s) hábil(es)`;}}
     else if(modoCond==='fijo'){const fStr=el('fecha_cond').value;if(fStr){const tentativa=parseYMD(fStr);const ajustada=siguienteHabil(tentativa,festivos);baseCumpl=ajustada;logCond=[`Fecha fija condicional: ${fmt(tentativa)}`,(tentativa.getTime()!==ajustada.getTime()?`Ajustada a hábil → ${fmt(ajustada)}`:'Cae en día hábil')];descriptorCond=`Fecha fija (${fmt(tentativa)})`;}}
-    
+
     // cumplimiento
     let fechaCumpl=null,logCumpl=[];
     const modo=el('modo_cumpl').value;
@@ -329,16 +361,29 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // salida
     const res=[];
-    res.push(`Notificación: ${fmt(notif)} (${tipo})`);
-    res.push(`Ejecutoria: ${fmt(fechaEjecutoria)}`);
-    if(descriptorCond)res.push(`⏳ Obligación condicional (${descriptorCond}): ${fmt(baseCumpl)}`);
-    if(fechaCumpl)res.push(`Cumplimiento: ${fmt(fechaCumpl)}`);
-    res.push(`Informe: ${fmt(fechaLimite)}`);
+    res.push(`Fecha de Notificación: ${fmt(notif)} (${tipo})`);
+    res.push(`Fecha de Ejecutoria: ${fmt(fechaEjecutoria)}`);
+    if(descriptorCond)res.push(`⏳ Lte. cumplimiento Obligación condicional (${descriptorCond}): ${fmt(baseCumpl)}`);
+    if(fechaCumpl)res.push(`Lte. Cumplimiento: ${fmt(fechaCumpl)}`);
+    res.push(`Lte. Informe incumplimiento: ${fmt(fechaLimite)}`);
     if(sinNoticia)res.push(`Noticia: (sin noticia)`);else if(fechaInforme)res.push(`Noticia: ${fmt(fechaInforme)}${textoEntendido}`);
     res.push(`📣 Estado noticia: ${estado}`);
 
     el('res_text').textContent=res.join('\n');
     el('resultado').style.display='block';
+
+    // 🎨 Reacciona visualmente según el estado de la noticia
+const contResultado = el('resultado');
+contResultado.classList.remove('resultado-ok', 'resultado-bad', 'resultado-neutral');
+
+if (estado.includes('oportuno')) {
+  contResultado.classList.add('resultado-ok');
+} else if (estado.includes('Pretémpore') || estado.includes('Extemporáneo')) {
+  contResultado.classList.add('resultado-bad');
+} else {
+  contResultado.classList.add('resultado-neutral');
+}
+
 
     if(mostrarDetalle){
       el('det_ejecutoria').textContent=['Detalle: Ejecutoria',...logEjec].join('\n');
@@ -347,7 +392,10 @@ document.addEventListener('DOMContentLoaded', function(){
       el('det_limite').textContent=['Detalle: Límite de informe',...logsLimite].join('\n');
       el('detalle').style.display='block';
     } else el('detalle').style.display='none';
-  }
+
+    // 🔄 Limpia el campo "Medio" después de mostrar el resultado
+    el('tipo_notif').selectedIndex = 0;
+}
   el('btn_calc').addEventListener('click',()=>calcular(false));
   el('btn_detalle').addEventListener('click',()=>calcular(true));
 });
