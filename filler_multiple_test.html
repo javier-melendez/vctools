@@ -250,53 +250,71 @@
                 }
             }
 
-            // --- FUNCIÓN CLAVE PARA PEGAR DATOS ---
-            window.handlePaste = function(e) {
-                e.preventDefault();
+            // --- PEGADO: normal en inputs; masivo solo en el primer input de la primera fila ---
+            window.handlePaste = function (e) {
+              const target = e.target;
+              // Si no es un input, no hacemos nada especial.
+              if (!(target instanceof HTMLInputElement)) return;
 
-                const pastedData = (e.clipboardData || window.clipboardData).getData('text');
-                if (!pastedData) return;
+              const clip = (e.clipboardData || window.clipboardData);
+              if (!clip) return;
+              const pastedData = clip.getData('text');
+              if (!pastedData) return;
 
-                const rows = pastedData.trim().split('\n');
-                const cuerpoTabla = document.getElementById(TBODY_ID);
-                if (!cuerpoTabla) return;
+              const tbody = document.getElementById(TBODY_ID);
+              if (!tbody) return;
 
-                const numCols = detectedVars.length;
-                let rowsProcessed = 0;
+              // ¿Es una cuadrícula (p. ej., copiada de Excel o varias líneas)?
+              const hasGrid = pastedData.includes('\t') || pastedData.includes('\n');
 
-                rows.forEach((rowString, rowIndex) => {
-                    const cells = rowString.trim().split('\t');
-                    if (cells.length === 0) return;
+              // Primer input de la primera fila
+              const firstCell = tbody.querySelector('tr.fila-registro-dinamica:first-child input');
 
-                    let targetRow;
-                    let existingRows = cuerpoTabla.querySelectorAll('tr.fila-registro-dinamica');
+              // Solo hacemos pegado masivo si pegamos una cuadrícula EN ese primer input
+              const bulkPaste = hasGrid && target === firstCell;
 
-                    if (rowIndex === 0 && existingRows.length > 0) {
-                        targetRow = existingRows[0];
-                    } else {
-                        targetRow = construirFila(detectedVars, true);
-                        cuerpoTabla.appendChild(targetRow);
+              if (!bulkPaste) {
+                // Pegado normal en cualquier otro input/caso
+                return; // NO preventDefault => el navegador pega el texto en el campo
+              }
+
+              // Pegado masivo
+              e.preventDefault();
+
+              // Normalizamos saltos de línea (por si hay \r\n)
+              const rows = pastedData.replace(/\r/g, '').trim().split('\n');
+
+              const numCols = detectedVars.length;
+              let rowsProcessed = 0;
+
+              rows.forEach((rowString, rowIndex) => {
+                const cells = rowString.split('\t');
+                if (!cells.length) return;
+
+                // Primera línea: reutiliza la primera fila; el resto crea filas nuevas
+                let targetRow;
+                if (rowIndex === 0) {
+                  targetRow = tbody.querySelector('tr.fila-registro-dinamica:first-child');
+                } else {
+                  targetRow = construirFila(detectedVars, true);
+                  tbody.appendChild(targetRow);
+                }
+
+                const inputs = targetRow.querySelectorAll('input');
+                cells.forEach((cellValue, colIndex) => {
+                  if (colIndex < numCols) {
+                    const input = inputs[colIndex];
+                    if (input) {
+                      input.value = String(cellValue).trim();
                     }
-
-                    const inputs = targetRow.querySelectorAll('input');
-
-                    cells.forEach((cellValue, colIndex) => {
-                        if (colIndex < numCols) {
-                            const input = inputs[colIndex];
-                            if (input) {
-                                input.value = cellValue.trim();
-                            }
-                        }
-                    });
-
-                    rowsProcessed++;
+                  }
                 });
 
-                log(`✅ Pegados ${rowsProcessed} registro(s) desde el portapapeles.`);
-                if(rowsProcessed > 0) {
-                    window.agregarFila();
-                }
-            }
+                rowsProcessed++;
+              });
+
+              log(`✅ Pegados ${rowsProcessed} registro(s) desde el portapapeles.`);
+            };
 
             function leerTodosLosContextos() {
                 const cuerpoTabla = document.getElementById(TBODY_ID);
