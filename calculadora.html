@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function(){
   el('modo_cond').addEventListener('change',toggleCond);
   el('sin_noticia').addEventListener('change',()=>{el('fecha_informe').disabled=el('sin_noticia').checked;if(el('sin_noticia').checked)el('fecha_informe').value='';});
 
-  function reset(){el('fecha_notif').value='';el('tipo_notif').selectedIndex = 0;el('modo_cond').value='dias';toggleCond();el('dias_cond').value=0;el('fecha_cond').value='';el('modo_cumpl').value='dias';toggleModo();el('dias_cumpl').value=15;el('meses_cumpl').value=1;el('fecha_fija').value='';el('dias_informe').value=30;el('fecha_informe').value='';el('sin_noticia').checked=false;el('fecha_informe').disabled=false;el('resultado').style.display='none';el('detalle').style.display='none';el('aviso').style.display='none';}
+  function reset(){el('fecha_notif').value='';el('tipo_notif').value='Estados';el('modo_cond').value='dias';toggleCond();el('dias_cond').value=0;el('fecha_cond').value='';el('modo_cumpl').value='dias';toggleModo();el('dias_cumpl').value=15;el('meses_cumpl').value=1;el('fecha_fija').value='';el('dias_informe').value=30;el('fecha_informe').value='';el('sin_noticia').checked=false;el('fecha_informe').disabled=false;el('resultado').style.display='none';el('detalle').style.display='none';el('aviso').style.display='none';}
   el('btn_reset').addEventListener('click',reset);
 
 // --- cálculo ---
