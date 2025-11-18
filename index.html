@@ -3,200 +3,292 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Caja de herramientas - Verificación de cumplimiento</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Caja de herramientas - Verificación de cumplimiento (Simple)</title>
+
   <style>
-    :root { --accent: #00695c; }
-    body { font-family: 'Inter', sans-serif; background: #fafbfc; color: #222; }
-    header, footer { background: #fff; }
-    .link-button { border-radius: 12px; transition: background 0.2s, transform 0.2s; }
-    .link-button:hover { transform: scale(1.05); }
+    /* Estilos base simples */
+    :root {
+        --accent: #00695c; /* Verde acento */
+        --bg: #f5f5f5; /* Fondo gris muy claro */
+        --fg: #222;
+        --border: #ccc;
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Encabezado */
+    header {
+        background: #fff;
+        padding: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    h1 {
+        color: var(--accent);
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+    }
+    h2 {
+        color: var(--accent);
+        font-size: 1.4rem;
+        margin-top: 1.5em;
+        margin-bottom: 1em;
+        text-align: center;
+    }
+
+    /* Buscador */
+    .search-box {
+        display: flex;
+        gap: 10px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: 20px auto;
+    }
+    .search-box input[type="number"] {
+        width: 80px;
+    }
+    .search-box input[type="text"] {
+        flex-grow: 1;
+    }
+    .search-box input {
+        border: 1px solid var(--border);
+        padding: 8px;
+        border-radius: 4px;
+    }
+    .search-box button {
+        background: #007bff; /* Azul */
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Botones de Navegación */
+    .button-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        max-width: 400px;
+        margin: 30px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .tool-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        color: white;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .tool-link:hover {
+        opacity: 0.9;
+    }
+    .tool-link span {
+        margin-left: 10px;
+    }
+
+    /* Tarjetas de Información */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    .card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    .card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+    }
+    .card p {
+        font-size: 0.9rem;
+        color: #555;
+    }
+    .copy-btn {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background: #007bff;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .copy-btn:hover {
+        background: #0056b3;
+    }
+
+    footer {
+        text-align: center;
+        padding: 10px 0;
+        background: #fff;
+        color: #777;
+        font-size: 0.85rem;
+        margin-top: auto;
+        box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- Encabezado -->
-  <header class="w-full p-6 md:p-10 text-center shadow-lg">
-    <div class="max-w-5xl mx-auto">
-      <h1 class="text-3xl md:text-4xl font-bold mb-2" style="color: var(--accent)">
-        Grupo de trabajo para la verificación del cumplimiento
-      </h1>
+  <header>
+    <div class="container">
+      <h1>Grupo de trabajo para la verificación del cumplimiento</h1>
       <p class="text-xl md:text-2xl font-light text-gray-600">Caja de herramientas</p>
     </div>
   </header>
 
-  <!-- Contenido principal -->
-  <main class="flex-grow flex flex-col items-center justify-start p-6 space-y-8">
+  <main class="flex-grow">
+    <div class="container">
 
-    <!-- Buscador compacto -->
-    <div class="w-full max-w-2xl mx-auto">
-      <div class="flex items-center gap-2 bg-white shadow-md rounded-full px-4 py-2">
-        <input id="ano_radicado" type="number" min="20" max="25" step="1" value="24"
-               class="w-20 border rounded-lg px-2 py-1 text-sm" placeholder="Año" />
-        <input id="numero_radicado" type="text"
-               class="flex-grow border rounded-lg px-2 py-1 text-sm" placeholder="Nº Radicado" />
-        <button id="btn_buscar"
-                class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-full text-sm font-medium">
-          🔍 Buscar
-        </button>
-      </div>
-      <div id="buscador_msg" class="text-xs text-gray-600 mt-1"></div>
-    </div>
+        <div class="search-box">
+          <input id="ano_radicado" type="number" min="20" max="25" step="1" value="24"
+                 placeholder="Año" />
+          <input id="numero_radicado" type="text"
+                 placeholder="Nº Radicado" />
+          <button id="btn_buscar">
+            🔍 Buscar
+          </button>
+        </div>
+        <div id="buscador_msg" style="text-align: center; font-size: 0.8rem; color: #555;"></div>
 
-    <!-- Caja de botones -->
-    <div class="w-full max-w-sm mx-auto space-y-4 p-6 bg-white rounded-3xl shadow-2xl">
 
-      <a href="calculadora.html"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #2e7d32" target="_blank">
-        <i class="fas fa-calculator mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Contador de términos 2.0</span>
-      </a>
+        <div class="button-grid">
 
-      <a href="proporcional.html"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: var(--accent)" target="_blank">
-        <i class="fas fa-chart-pie mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Index y proporcional</span>
-      </a>
+          <a href="calculadora.html" class="tool-link" style="background: #2e7d32" target="_blank">
+            <span>🧮 Contador de términos 2.0</span>
+          </a>
 
-      <a href="filler.html"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #00bcd4" target="_blank">
-        <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Filler 3.0</span>
-      </a>
+          <a href="proporcional.html" class="tool-link" style="background: var(--accent)" target="_blank">
+            <span>📊 Index y proporcional</span>
+          </a>
 
-        <a href="filler_multiple_test.html"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #00bcd4" target="_blank">
-        <i class="fas fa-magic mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Filler 4.0 (Beta)</span>
-      </a>
+          <a href="filler.html" class="tool-link" style="background: #00bcd4" target="_blank">
+            <span>✨ Filler 3.0</span>
+          </a>
 
-      <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #ef6c00" target="_blank">
-        <i class="fas fa-flask mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Aplicativo de multas 2.0</span>
-      </a>
+          <a href="filler_multiple_test.html" class="tool-link" style="background: #00bcd4" target="_blank">
+            <span>🚀 Filler 4.0 (Beta)</span>
+          </a>
 
-      <a href="https://colab.research.google.com/drive/1gJ3nGU4U4FwBz9yTr55R-gVaNBTW7_P1?usp=sharing"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #c62828" target="_blank">
-        <i class="fas fa-filter mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Filtro 2.0</span>
-      </a>
+          <a href="https://colab.research.google.com/drive/1qP8lPnJY0k5cTPEUU6QnBEibf297XCGL?usp=sharing"
+             class="tool-link" style="background: #ef6c00" target="_blank">
+            <span>🧪 Aplicativo de multas 2.0</span>
+          </a>
 
-      <a href="https://its2sicgov-my.sharepoint.com/:f:/g/personal/jamelendez_sic_gov_co/ErTSPuYhCv1KuukYsWxCFVQBRhLYBthKqN9rhIbuWOakNQ?e=PgmaT3"
-         class="link-button group flex items-center justify-center p-4 text-white font-semibold text-lg shadow-md"
-         style="background: #fbc02d; color:#222" target="_blank">
-        <i class="fas fa-folder mr-3 text-xl group-hover:animate-pulse"></i>
-        <span>Plantillas</span>
-      </a>
-    </div>
+          <a href="https://colab.research.google.com/drive/1gJ3nGU4U4FwBz9yTr55R-gVaNBTW7_P1?usp=sharing"
+             class="tool-link" style="background: #c62828" target="_blank">
+            <span>🗂️ Filtro 2.0</span>
+          </a>
 
-    <!-- Información a tener en cuenta -->
-    <section class="w-full max-w-5xl mx-auto mt-12">
-      <h2 class="text-2xl font-bold mb-6 text-center" style="color: var(--accent)">📌 Información a tener en cuenta</h2>
-      <div class="grid md:grid-cols-2 gap-6">
+          <a href="https://its2sicgov-my.sharepoint.com/:f:/g/personal/jamelendez_sic_gov_co/ErTSPuYhCv1KuukYsWxCFVQBRhLYBthKqN9rhIbuWOakNQ?e=PgmaT3"
+             class="tool-link" style="background: #fbc02d; color:#222" target="_blank">
+            <span>📁 Plantillas</span>
+          </a>
+        </div>
 
-        <!-- Tarjeta Multas con botón copiar -->
-<div class="bg-white p-5 rounded-xl shadow relative">
-  <h3 class="font-bold text-lg mb-2">Resuelve multas con dirección de la SIC actualizada</h3>
+        <section style="margin-top: 40px;">
+          <h2>📌 Información a tener en cuenta</h2>
+          <div class="info-grid">
 
-  <!-- Vista corta (resumen) -->
-  <p class="mt-2 text-sm leading-relaxed text-gray-700">
-    Copia el texto completo del Resuelve con la información de pago actualizada.
-  </p>
-
-  <!-- Botón copiar -->
-  <button onclick="copiarMultas()" 
-          class="absolute down-3 right-3 bg-sky-600 hover:bg-sky-700 text-white px-3 py-1 rounded-full text-xs shadow">
-    📋 Copiar
-  </button>
-</div>
-
-<!-- Texto completo oculto -->
-<pre id="multas_texto" style="display:none; white-space:pre-wrap;">
-SEGUNDO: Imponer a IBxxxxxx identificada con identificada con cédula de ciudadanía No. xxxxxxxx, una multa por valor de xxxxx UVB, que en pesos colombianos equivalen a la suma de xxxxxxxx PESOS M/CTE ($zzzzzzzzz), a favor de la Superintendencia de Industria y Comercio, los cuales corresponden a una séptima parte del salario mínimo legal vigente por CUARENTA Y SIETE (47) días de retardo del cumplimiento de lo ordenado, según lo expuesto en la parte motiva de la presente providencia.   
+            <div class="card">
+              <h3>Resuelve multas con dirección de la SIC actualizada</h3>
+              <p class="mt-2 text-sm leading-relaxed">
+                Copia el texto completo del Resuelve con la información de pago actualizada.
+              </p>
+              <button onclick="copiarMultas()" class="copy-btn">
+                📋 Copiar
+              </button>
+              <pre id="multas_texto" style="display:none; white-space:pre-wrap;">
+SEGUNDO: Imponer a IBxxxxxx identificada con identificada con cédula de ciudadanía No. xxxxxxxx, una multa por valor de xxxxx UVB, que en pesos colombianos equivalen a la suma de xxxxxxxx PESOS M/CTE ($zzzzzzzzz), a favor de la Superintendencia de Industria y Comercio, los cuales corresponden a una séptima parte del salario mínimo legal vigente por CUARENTA Y SIETE (47) días de retardo del cumplimiento de lo ordenado, según lo expuesto en la parte motiva de la presente providencia.
 
 PARÁGRAFO: El valor de la sanción pecuniaria que por este auto se impone, deberá consignarse en efectivo o cheque de gerencia en la Cuenta Corriente No. 062-87028-2 del Banco de Bogotá, a nombre de la Superintendencia de Industria y Comercio identificada con el NIT 800.176.089-2. El pago deberá efectuarse dentro de los cinco (5) días hábiles siguientes a la ejecutoria de la presente providencia y acreditarse en la ventanilla de Tesorería de esta Superintendencia con el original de la consignación, donde le expedirán el recibo de caja aplicado al auto sancionatorio. Vencido este plazo se cobrarán intereses por cada día de retardo, liquidados a la tasa del 12% efectivo anual.
- 
+
 Para el efecto podrán utilizarse los siguientes medios de pago:
- 
+
 - A través del botón de pago PSE o Cupón de Pago disponible en la sede electrónica de la Superintendencia https://sedeelectronica.sic.gov.co/ en la sección de Servicios / pagos de multas.
 - Utilizando el formato universal de recaudo, consignando en efectivo o cheque de gerencia en el Banco de Bogotá a la cuenta corriente No. 062-87028-2 del Banco de Bogotá a nombre de la Superintendencia de Industria y Comercio NIT 800.176.089-2, indicando la referencia 1 del formato y código rentístico 03, seguido del número del auto que impone la multa y en la referencia 2 el número de identificación del multado. En este caso deberá acreditarse el pago, enviando el respectivo soporte través del correo electrónico contactenos@sic.gov.co donde se expedirá el recibo de caja aplicado a la resolución sancionatoria, o en su defecto, entregar el soporte de pago en la ventanilla de la Tesorería de la Superintendencia de Industria y Comercio, ubicada en la Calle 24 Nº 7 - 43 Local 108 en la ciudad de Bogotá D.C.
 </pre>
+            </div>
 
-<script>
-  function copiarMultas(){
-    const texto = document.getElementById("multas_texto").innerText;
-    navigator.clipboard.writeText(texto).then(()=>{
-      alert("✅ Texto completo copiado al portapapeles");
-    }).catch(err=>{
-      alert("❌ No se pudo copiar: " + err);
-    });
-  }
-</script>
+            <div class="card">
+              <h3>PRABYC INGENIEROS SAS EN TOMA DE POSESIÓN</h3>
+              <p>NIT: 800173155-7 | Fecha: 25 de septiembre de 2024</p>
+              <p style="margin-top: 8px;">
+                Mediante Resolución No. 1520-00000304 del 18 de septiembre de 2024, la Alcaldía Municipal de Ibagué ordenó la toma de posesión inmediata para administrar los bienes, haberes y negocios de la sociedad, por un plazo de un (1) año, prorrogable por otro año más.
+              </p>
+            </div>
 
+            <div class="card">
+              <h3>CASAMAESTRA S.A.S</h3>
+              <p>NIT: 901016362-1 | Inicial: 15/03/2023 | Prórroga: 27/03/2025</p>
+              <p style="margin-top: 8px;">
+                Resolución No. 039 del 10 de marzo de 2023 de Planeación Municipal de Armenia decretó la toma de posesión de bienes y haberes de la sociedad. <br>
+                Posteriormente, Resolución No. 018 del 06 de marzo de 2025 prorrogó por un (1) año la intervención y toma de posesión para liquidar los negocios de la sociedad.
+              </p>
+            </div>
 
-        <!-- Empresa 1 -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-bold text-lg mb-2">PRABYC INGENIEROS SAS EN TOMA DE POSESIÓN</h3>
-          <p class="text-sm text-gray-600">NIT: 800173155-7 | Fecha: 25 de septiembre de 2024</p>
-          <p class="mt-2 text-sm leading-relaxed">
-            Mediante Resolución No. 1520-00000304 del 18 de septiembre de 2024, la Alcaldía Municipal de Ibagué ordenó la toma de posesión inmediata para administrar los bienes, haberes y negocios de la sociedad, por un plazo de un (1) año, prorrogable por otro año más.
-          </p>
-        </div>
+            <div class="card">
+              <h3>GEO CASAMAESTRA PROYECTO SEVILLA S.A.S.</h3>
+              <p>NIT: 900978783-0 | Inicial: 10/01/2024 | Prórroga: 12/12/2024</p>
+              <p style="margin-top: 8px;">
+                Resolución No. 2047 del 29 de diciembre de 2023 de la Alcaldía de Dosquebradas ordenó la toma de posesión para administrar la sociedad. <br>
+                Luego, Resolución No. 1450 del 26 de octubre de 2024 decretó la toma de posesión de todos los bienes y haberes con fines de administración.
+              </p>
+            </div>
 
-        <!-- Empresa 2 -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-bold text-lg mb-2">CASAMAESTRA S.A.S</h3>
-          <p class="text-sm text-gray-600">NIT: 901016362-1 | Inicial: 15/03/2023 | Prórroga: 27/03/2025</p>
-          <p class="mt-2 text-sm leading-relaxed">
-            Resolución No. 039 del 10 de marzo de 2023 de Planeación Municipal de Armenia decretó la toma de posesión de bienes y haberes de la sociedad. <br>
-            Posteriormente, Resolución No. 018 del 06 de marzo de 2025 prorrogó por un (1) año la intervención y toma de posesión para liquidar los negocios de la sociedad.
-          </p>
-        </div>
+            <div class="card">
+              <h3>FAST COLOMBIA S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
+              <p>NIT: 900313349-3 | Fecha: 30/06/2023</p>
+              <p style="margin-top: 8px;">
+                Por Auto del 21 de junio de 2023 de la Superintendencia de Sociedades, inscrito el 30 de junio de 2023, se decretó embargo de bienes sujetos a registro dentro del proceso de liquidación judicial de la sociedad.
+              </p>
+            </div>
 
-        <!-- Empresa 3 -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-bold text-lg mb-2">GEO CASAMAESTRA PROYECTO SEVILLA S.A.S.</h3>
-          <p class="text-sm text-gray-600">NIT: 900978783-0 | Inicial: 10/01/2024 | Prórroga: 12/12/2024</p>
-          <p class="mt-2 text-sm leading-relaxed">
-            Resolución No. 2047 del 29 de diciembre de 2023 de la Alcaldía de Dosquebradas ordenó la toma de posesión para administrar la sociedad. <br>
-            Luego, Resolución No. 1450 del 26 de octubre de 2024 decretó la toma de posesión de todos los bienes y haberes con fines de administración.
-          </p>
-        </div>
+            <div class="card">
+              <h3>ULTRA AIR S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
+              <p>NIT: 901428193-1 | Fecha: 18/07/2023</p>
+              <p style="margin-top: 8px;">
+                Por Auto No. 400-009319 del 29 de junio de 2023 de la Superintendencia de Sociedades de Medellín, inscrito el 18 de julio de 2023, se dio inicio al proceso de liquidación judicial. La declaración produjo la cesación de funciones de administradores y órganos sociales.
+              </p>
+            </div>
 
-        <!-- Empresa 4 -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-bold text-lg mb-2">FAST COLOMBIA S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
-          <p class="text-sm text-gray-600">NIT: 900313349-3 | Fecha: 30/06/2023</p>
-          <p class="mt-2 text-sm leading-relaxed">
-            Por Auto del 21 de junio de 2023 de la Superintendencia de Sociedades, inscrito el 30 de junio de 2023, se decretó embargo de bienes sujetos a registro dentro del proceso de liquidación judicial de la sociedad.
-          </p>
-        </div>
-
-        <!-- Empresa 5 -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-bold text-lg mb-2">ULTRA AIR S.A.S. EN LIQUIDACIÓN JUDICIAL</h3>
-          <p class="text-sm text-gray-600">NIT: 901428193-1 | Fecha: 18/07/2023</p>
-          <p class="mt-2 text-sm leading-relaxed">
-            Por Auto No. 400-009319 del 29 de junio de 2023 de la Superintendencia de Sociedades de Medellín, inscrito el 18 de julio de 2023, se dio inicio al proceso de liquidación judicial. La declaración produjo la cesación de funciones de administradores y órganos sociales.
-          </p>
-        </div>
-
-      </div>
-    </section>
+          </div>
+        </section>
+    </div>
   </main>
 
-  <!-- Script buscador -->
   <script>
     function construirURL(ano, numero){
       const base = 'http://10.20.101.19/DescargaDocs/modulo/index.jsp';
@@ -208,6 +300,7 @@ Para el efecto podrán utilizarse los siguientes medios de pago:
       });
       return `${base}?${params.toString()}`;
     }
+
     document.getElementById('btn_buscar').addEventListener('click', ()=>{
       const ano = document.getElementById('ano_radicado').value;
       const numero = document.getElementById('numero_radicado').value;
@@ -215,19 +308,26 @@ Para el efecto podrán utilizarse los siguientes medios de pago:
       window.open(url, '_blank');
       document.getElementById('buscador_msg').textContent = `Abriendo: ${url}`;
     });
+
+    function copiarMultas(){
+      const texto = document.getElementById("multas_texto").innerText;
+      navigator.clipboard.writeText(texto).then(()=>{
+        alert("✅ Texto completo copiado al portapapeles");
+      }).catch(err=>{
+        alert("❌ No se pudo copiar: " + err);
+      });
+    }
   </script>
 
-  <!-- Sección de contacto -->
-  <div class="p-6 text-center text-gray-600 max-w-5xl mx-auto">
-    <p class="text-sm">
-      ¿Tienes sugerencias? Escríbeme a 
-      <a href="mailto:jamelendez@sic.gov.co" class="text-blue-500 hover:underline">jamelendez@sic.gov.co</a>
+  <div style="padding: 15px 20px; text-align: center; color: #555; max-width: 900px; margin: 0 auto;">
+    <p style="font-size: 0.9rem;">
+      ¿Tienes sugerencias? Escríbeme a
+      <a href="mailto:jamelendez@sic.gov.co" style="color: #007bff; text-decoration: none;">jamelendez@sic.gov.co</a>
     </p>
   </div>
 
-  <!-- Pie de página -->
-  <footer class="w-full p-4 text-center text-gray-500 shadow-lg mt-auto">
-    <div class="max-w-5xl mx-auto">
+  <footer>
+    <div class="container">
       <p>© 2025 Desarrollado por Javier Meléndez O.</p>
     </div>
   </footer>
