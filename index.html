@@ -159,23 +159,27 @@
         box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
     }
 
-    /* Banner INPEC */
-    .inpec-banner {
-        padding: 20px 0;
+    /* Banners (INPEC, ADRES, Registraduría, RUES) */
+    .banner {
+        padding: 1px 0;
         text-align: center;
     }
-    .inpec-banner .container {
+    .banner .container {
         display: flex;
         justify-content: center;
     }
-    .inpec-banner img {
+    .banner img {
         max-width: 100%;
+        width: 100%;
+        max-width: 800px; /* ajusta este valor si quieres más grande o más pequeño */
         height: auto;
         border-radius: 8px;
         border: 1px solid var(--border);
         box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         cursor: pointer;
     }
+
+
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -343,18 +347,50 @@ Para el efecto podrán utilizarse los siguientes medios de pago:
       <a href="mailto:jamelendez@sic.gov.co" style="color: #007bff; text-decoration: none;">jamelendez@sic.gov.co</a>
     </p>
   </div>
-
- <!-- Banner INPEC -->
-  <section class="inpec-banner">
+  <!-- Banner INPEC -->
+  <section class="banner inpec-banner">
     <div class="container">
       <a href="https://www.inpec.gov.co/registro-de-la-poblacion-privada-de-la-libertad"
          target="_blank" rel="noopener noreferrer">
-        <!-- Usa aquí la imagen que guardaste localmente -->
         <img src="pics/consulta_1.png"
              alt="Consulta Registro de la Población Privada de la Libertad - INPEC">
       </a>
     </div>
   </section>
+
+  <!-- Banner ADRES -->
+  <section class="banner adres-banner">
+    <div class="container">
+      <a href="https://www.adres.gov.co/consulte-su-eps"
+         target="_blank" rel="noopener noreferrer">
+        <img src="https://www.adres.gov.co/nuestra-entidad/acerca-de-adres/PublishingImages/img-qu%C3%A9%20es%20Adres.png"
+             alt="Consulta su EPS - ADRES">
+      </a>
+    </div>
+  </section>
+
+  <!-- Banner Registraduría -->
+  <section class="banner registraduria-banner">
+    <div class="container">
+      <a href="https://defunciones.registraduria.gov.co/"
+         target="_blank" rel="noopener noreferrer">
+        <img src="pics/defunciones.jpg"
+             alt="Consulta de defunciones - Registraduría Nacional del Estado Civil">
+      </a>
+    </div>
+  </section>
+
+  <!-- Banner RUES -->
+  <section class="banner rues-banner">
+    <div class="container">
+      <a href="https://www.rues.org.co/interno/iniciar-sesion"
+         target="_blank" rel="noopener noreferrer">
+        <img src="https://d1ubo22jqmjd7v.cloudfront.net/images/95c0f429345f67ae42b110dd5cf65231-slider2.jpg"
+             alt="Inicio de sesión - RUES">
+      </a>
+    </div>
+  </section>
+
 
   <footer>
     <div class="container">
