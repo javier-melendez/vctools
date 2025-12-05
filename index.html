@@ -158,6 +158,24 @@
         margin-top: auto;
         box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
     }
+
+    /* Banner INPEC */
+    .inpec-banner {
+        padding: 20px 0;
+        text-align: center;
+    }
+    .inpec-banner .container {
+        display: flex;
+        justify-content: center;
+    }
+    .inpec-banner img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        cursor: pointer;
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -325,6 +343,18 @@ Para el efecto podrán utilizarse los siguientes medios de pago:
       <a href="mailto:jamelendez@sic.gov.co" style="color: #007bff; text-decoration: none;">jamelendez@sic.gov.co</a>
     </p>
   </div>
+
+ <!-- Banner INPEC -->
+  <section class="inpec-banner">
+    <div class="container">
+      <a href="https://www.inpec.gov.co/registro-de-la-poblacion-privada-de-la-libertad"
+         target="_blank" rel="noopener noreferrer">
+        <!-- Usa aquí la imagen que guardaste localmente -->
+        <img src="pics/consulta_1.png"
+             alt="Consulta Registro de la Población Privada de la Libertad - INPEC">
+      </a>
+    </div>
+  </section>
 
   <footer>
     <div class="container">
