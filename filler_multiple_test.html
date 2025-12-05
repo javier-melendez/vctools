@@ -143,6 +143,60 @@
         input[type="date"] {
             font-size: 0.9em;
         }
+
+        /* --- MODO "UN SOLO REGISTRO" (VERTICAL) --- */
+        .table-wrapper.single-record-mode {
+            border-style: solid;
+        }
+
+        .table-wrapper.single-record-mode #tabla-dinamica {
+            width: 100%;
+        }
+
+        /* Ocultamos el encabezado cuando solo hay un registro */
+        .table-wrapper.single-record-mode thead {
+            display: none;
+        }
+
+        /* La fila se ve como un bloque */
+        .table-wrapper.single-record-mode tbody tr {
+            display: block;
+        }
+
+        /* Cada celda se apila una debajo de la otra */
+        .table-wrapper.single-record-mode tbody tr td {
+            display: block;
+            border: none;
+            padding: 6px 8px 10px;
+            white-space: normal;
+        }
+
+        /* La última celda (la del botón) la separamos un poquito */
+        .table-wrapper.single-record-mode tbody tr td:last-child {
+            border-top: 1px solid var(--border);
+            margin-top: 4px;
+            padding-top: 8px;
+        }
+
+        /* Etiqueta encima del input en modo vertical */
+        .table-wrapper.single-record-mode .dyn-label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 2px;
+            color: #444;
+        }
+
+        /* En modo horizontal, esas etiquetas no se muestran */
+        .table-wrapper:not(.single-record-mode) .dyn-label {
+            display: none;
+        }
+
+        /* Anular el ancho fijo de la columna ACCIÓN en modo vertical */
+        .table-wrapper.single-record-mode #tabla-dinamica th:last-child,
+        .table-wrapper.single-record-mode #tabla-dinamica td:last-child {
+            width: auto;
+        }
     </style>
 </head>
 <body>
@@ -186,6 +240,22 @@
             const TBODY_ID = "cuerpo-registros-dinamicos";
             const TABLE_CONTAINER_ID = "tableContainer";
 
+            // --- Función para cambiar entre modo vertical (1 registro) y horizontal (varios) ---
+            function updateLayoutMode() {
+                const wrapper = document.getElementById(TABLE_CONTAINER_ID);
+                const tbody = document.getElementById(TBODY_ID);
+                if (!wrapper || !tbody) return;
+
+                const rows = tbody.querySelectorAll('tr.fila-registro-dinamica');
+                if (rows.length <= 1) {
+                    // Solo un registro → modo vertical
+                    wrapper.classList.add('single-record-mode');
+                } else {
+                    // Varios registros → modo tabla horizontal
+                    wrapper.classList.remove('single-record-mode');
+                }
+            }
+
             // --- Nuevas funciones para la tabla de registros ---
 
             function construirFila(vars, esModelo = false) {
@@ -212,13 +282,20 @@
                     }
 
                     inp.name = v;
+
+                    // Etiqueta visible solo en modo "single-record-mode"
+                    const labelDiv = document.createElement('div');
+                    labelDiv.className = 'dyn-label';
+                    labelDiv.textContent = v;
+
+                    td.appendChild(labelDiv);
                     td.appendChild(inp);
                     tr.appendChild(td);
                 });
 
                 const tdAccion = document.createElement('td');
                 const btnEliminar = document.createElement('button');
-                btnEliminar.textContent = '🗑️';
+                btnEliminar.textContent = 'Eliminar';
                 btnEliminar.className = 'iconbtn-delete';
                 btnEliminar.onclick = () => eliminarFila(btnEliminar);
                 tdAccion.appendChild(btnEliminar);
@@ -233,6 +310,9 @@
 
                 const nuevaFila = construirFila(detectedVars, true);
                 cuerpoTabla.appendChild(nuevaFila);
+
+                // Re-evaluar el modo (vertical/horizontal)
+                updateLayoutMode();
             }
 
             window.eliminarFila = function(btnElement) {
@@ -248,6 +328,9 @@
                         });
                     }
                 }
+
+                // Si quedamos con una sola fila, volver a modo vertical
+                updateLayoutMode();
             }
 
             // --- PEGADO: normal en inputs; masivo solo en el primer input de la primera fila ---
@@ -314,6 +397,8 @@
               });
 
               log(`✅ Pegados ${rowsProcessed} registro(s) desde el portapapeles.`);
+              // Si se pegaron varias filas, seguramente ahora estamos en modo horizontal
+              updateLayoutMode();
             };
 
             function leerTodosLosContextos() {
@@ -565,6 +650,9 @@
                 reloadBtn.classList.remove("hidden");
 
                 tableWrapper.addEventListener('paste', window.handlePaste);
+
+                // Arrancar en modo vertical (un solo registro)
+                updateLayoutMode();
             }
 
             // === Utilidad para obtener RADICADO desde un contexto (admite claves anidadas) ===
@@ -655,7 +743,7 @@
                                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             });
 
-                            // Mantener un "name" utilitario para archivos internos (no afecta tus 2 reglas)
+                            // Mantener un "name" utilitario para archivos internos
                             generatedBlobs.push({
                                 blob: outBlob,
                                 index: index + 1,
@@ -673,16 +761,16 @@
                     }
 
                     if (generatedBlobs.length === 1) {
-                        // === REGLA 1: Documento Único ===
+                        // Documento único
                         const radicado = getRadicadoFromContext(contextos[0]);
                         const outName = `${radicado ? radicado + '_' : ''}${baseFilename}_${fecha}.docx`;
                         saveAs(generatedBlobs[0].blob, outName);
                         log(`✅ Documento único generado: ${outName}`);
                     } else {
-                        // === REGLA 2: Varios -> ZIP con nombre "nombrePlantilla_dd-mm-yy.zip" ===
+                        // Varios -> ZIP
                         if (typeof window.JSZip === 'undefined') {
                             log("⚠️ Se requiere la librería JSZip para descargar varios documentos en un solo archivo.");
-                            // Fallback: descargar el primero con un nombre razonable (no afecta tu regla del ZIP)
+                            // Fallback: descargar el primero con un nombre razonable
                             const fallbackName = `${baseFilename}_Doc_1_${fecha}.docx`;
                             saveAs(generatedBlobs[0].blob, fallbackName);
                             log(`✅ Se generaron ${count} documentos. Descargado el primero como: ${fallbackName}`);
