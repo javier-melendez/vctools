@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>FILLER 4.0 (Beta)</title>
+    <title>FILLER 4.0 (Beta + Preview)</title>
+
+    <script src="https://unpkg.com/pizzip@3.1.8/dist/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/docx-preview/dist/docx-preview.js"></script>
 
     <style>
         :root {
@@ -71,6 +76,10 @@
         button:active {
             opacity: 0.9;
         }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
         pre {
             background: #f5f5f5;
             border: 1px solid var(--border);
@@ -79,6 +88,7 @@
             font-family: ui-monospace, monospace;
             font-size: 0.98em;
             overflow-x: auto;
+            max-height: 200px;
         }
         .small {
             font-size: 0.92em;
@@ -124,21 +134,38 @@
             padding: 5px;
             margin-bottom: 0;
         }
-        .iconbtn-delete {
-            background: #d32f2f;
-            color: white;
+
+        /* Botones de acción en la tabla */
+        .action-cell {
+            display: flex;
+            gap: 4px;
+        }
+        .iconbtn {
             padding: 0.4em 0.6em;
             line-height: 1;
             margin: 0;
-            display: block;
-            width: 100%;
+            display: inline-block;
             text-align: center;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .iconbtn-delete {
+            background: #d32f2f;
+            color: white;
         }
         .iconbtn-delete:hover {
             background: #c62828;
         }
+        .iconbtn-preview {
+            background: #0288d1;
+            color: white;
+        }
+        .iconbtn-preview:hover {
+            background: #0277bd;
+        }
+
         #tabla-dinamica th:last-child, #tabla-dinamica td:last-child {
-            width: 60px;
+            width: 90px;
         }
         input[type="date"] {
             font-size: 0.9em;
@@ -148,37 +175,26 @@
         .table-wrapper.single-record-mode {
             border-style: solid;
         }
-
         .table-wrapper.single-record-mode #tabla-dinamica {
             width: 100%;
         }
-
-        /* Ocultamos el encabezado cuando solo hay un registro */
         .table-wrapper.single-record-mode thead {
             display: none;
         }
-
-        /* La fila se ve como un bloque */
         .table-wrapper.single-record-mode tbody tr {
             display: block;
         }
-
-        /* Cada celda se apila una debajo de la otra */
         .table-wrapper.single-record-mode tbody tr td {
             display: block;
             border: none;
             padding: 6px 8px 10px;
             white-space: normal;
         }
-
-        /* La última celda (la del botón) la separamos un poquito */
         .table-wrapper.single-record-mode tbody tr td:last-child {
             border-top: 1px solid var(--border);
             margin-top: 4px;
             padding-top: 8px;
         }
-
-        /* Etiqueta encima del input en modo vertical */
         .table-wrapper.single-record-mode .dyn-label {
             display: block;
             font-size: 0.9em;
@@ -186,21 +202,77 @@
             margin-bottom: 2px;
             color: #444;
         }
-
-        /* En modo horizontal, esas etiquetas no se muestran */
         .table-wrapper:not(.single-record-mode) .dyn-label {
             display: none;
         }
-
-        /* Anular el ancho fijo de la columna ACCIÓN en modo vertical */
         .table-wrapper.single-record-mode #tabla-dinamica th:last-child,
         .table-wrapper.single-record-mode #tabla-dinamica td:last-child {
             width: auto;
         }
+
+        /* --- ESTILOS DEL MODAL DE PREVISUALIZACIÓN --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: var(--radius);
+            width: 90%;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 0.8;
+        }
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #preview-container {
+            flex-grow: 1;
+            overflow: auto;
+            border: 1px solid #ddd;
+            background: #e9e9e9;
+            padding: 20px;
+        }
+        /* Ajuste para el renderizador de docxjs */
+        .docx-wrapper {
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            padding: 0 !important;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
-    <h2>FILLER 4.0 (Beta)</h2>
+    <h2>FILLER 4.0 (Beta + Preview)</h2>
 
     <div>
         <label>1) Selecciona tu plantilla <small>(.docx)</small></label>
@@ -218,12 +290,24 @@
     <hr />
 
     <div style="margin-top: 12px">
-        <button id="generateBtn" disabled>Generar y descargar DOCX</button>
+        <button id="generateBtn" disabled onclick="generateAndDownload()">Generar y descargar DOCX</button>
         <button id="reloadBtn" class="hidden">Cargar otra plantilla</button>
     </div>
 
     <h3>Registro de Eventos y Errores:</h3>
     <pre id="log" aria-live="polite"></pre>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="margin:0">Previsualización del Documento</h3>
+                <span class="close-btn" onclick="cerrarPreview()">&times;</span>
+            </div>
+            <div id="preview-container">
+                <p style="text-align:center; color:#666;">Cargando vista previa...</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         (function () {
@@ -232,6 +316,8 @@
             const generateBtn = document.getElementById("generateBtn");
             const reloadBtn = document.getElementById("reloadBtn");
             const logEl = document.getElementById("log");
+            const previewModal = document.getElementById("previewModal");
+            const previewContainer = document.getElementById("preview-container");
 
             let originalZip = null;
             let templateFilename = null;
@@ -240,7 +326,41 @@
             const TBODY_ID = "cuerpo-registros-dinamicos";
             const TABLE_CONTAINER_ID = "tableContainer";
 
-            // --- Función para cambiar entre modo vertical (1 registro) y horizontal (varios) ---
+            // Listeners iniciales
+            fileInput.addEventListener('change', handleFileSelect, false);
+            reloadBtn.addEventListener('click', () => location.reload());
+
+            // Cerrar modal al hacer click fuera
+            window.onclick = function(event) {
+                if (event.target == previewModal) {
+                    cerrarPreview();
+                }
+            }
+
+            // --- Lógica de Carga de Archivo ---
+            function handleFileSelect(evt) {
+                const f = evt.target.files[0];
+                if (!f) return;
+                templateFilename = f.name;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = e.target.result;
+                    try {
+                        const zip = new PizZip(data);
+                        originalZip = zip;
+                        const vars = extractVarsFromZip(zip);
+                        log(`✅ Plantilla cargada. ${vars.length} variables detectadas.`);
+                        buildForm(vars);
+                    } catch (err) {
+                        log("❌ Error al leer el archivo DOCX. Asegúrate de que es un .docx válido sin contraseña.");
+                        console.error(err);
+                    }
+                };
+                reader.readAsBinaryString(f);
+            }
+
+            // --- Layout Vertical/Horizontal ---
             function updateLayoutMode() {
                 const wrapper = document.getElementById(TABLE_CONTAINER_ID);
                 const tbody = document.getElementById(TBODY_ID);
@@ -248,16 +368,13 @@
 
                 const rows = tbody.querySelectorAll('tr.fila-registro-dinamica');
                 if (rows.length <= 1) {
-                    // Solo un registro → modo vertical
                     wrapper.classList.add('single-record-mode');
                 } else {
-                    // Varios registros → modo tabla horizontal
                     wrapper.classList.remove('single-record-mode');
                 }
             }
 
-            // --- Nuevas funciones para la tabla de registros ---
-
+            // --- Construcción de Filas ---
             function construirFila(vars, esModelo = false) {
                 const tr = document.createElement('tr');
                 tr.className = "fila-registro-dinamica";
@@ -273,7 +390,7 @@
                     } else if (v.includes('.')) {
                         inp = document.createElement("input");
                         inp.type = "text";
-                        inp.placeholder = "Valor Anidado para " + v;
+                        inp.placeholder = "Valor para " + v;
                         inp.style.backgroundColor = '#fff3e0';
                     } else {
                         inp = document.createElement("input");
@@ -283,7 +400,7 @@
 
                     inp.name = v;
 
-                    // Etiqueta visible solo en modo "single-record-mode"
+                    // Label para modo vertical
                     const labelDiv = document.createElement('div');
                     labelDiv.className = 'dyn-label';
                     labelDiv.textContent = v;
@@ -294,31 +411,43 @@
                 });
 
                 const tdAccion = document.createElement('td');
+                const divAccion = document.createElement('div');
+                divAccion.className = 'action-cell';
+
+                // Botón Previsualizar
+                const btnPreview = document.createElement('button');
+                btnPreview.textContent = '👁️';
+                btnPreview.title = 'Previsualizar este documento';
+                btnPreview.className = 'iconbtn iconbtn-preview';
+                btnPreview.onclick = () => previsualizarFila(btnPreview);
+
+                // Botón Eliminar
                 const btnEliminar = document.createElement('button');
-                btnEliminar.textContent = 'Eliminar';
-                btnEliminar.className = 'iconbtn-delete';
+                btnEliminar.textContent = '🗑️';
+                btnEliminar.title = 'Eliminar fila';
+                btnEliminar.className = 'iconbtn iconbtn-delete';
                 btnEliminar.onclick = () => eliminarFila(btnEliminar);
-                tdAccion.appendChild(btnEliminar);
+
+                divAccion.appendChild(btnPreview);
+                divAccion.appendChild(btnEliminar);
+                tdAccion.appendChild(divAccion);
                 tr.appendChild(tdAccion);
 
                 return tr;
             }
 
+            // --- Acciones de Tabla ---
             window.agregarFila = function() {
                 const cuerpoTabla = document.getElementById(TBODY_ID);
                 if (!cuerpoTabla) return;
-
                 const nuevaFila = construirFila(detectedVars, true);
                 cuerpoTabla.appendChild(nuevaFila);
-
-                // Re-evaluar el modo (vertical/horizontal)
                 updateLayoutMode();
             }
 
             window.eliminarFila = function(btnElement) {
                 const row = btnElement.closest('tr');
                 const tbody = document.getElementById(TBODY_ID);
-
                 if (tbody && tbody.querySelectorAll('tr').length > 1) {
                     row.remove();
                 } else {
@@ -328,152 +457,269 @@
                         });
                     }
                 }
-
-                // Si quedamos con una sola fila, volver a modo vertical
                 updateLayoutMode();
             }
 
-            // --- PEGADO: normal en inputs; masivo solo en el primer input de la primera fila ---
-            window.handlePaste = function (e) {
-              const target = e.target;
-              // Si no es un input, no hacemos nada especial.
-              if (!(target instanceof HTMLInputElement)) return;
+            // --- Previsualización ---
+            window.previsualizarFila = function(btnElement) {
+                const row = btnElement.closest('tr');
+                const contexto = leerContextoDeFila(row);
 
-              const clip = (e.clipboardData || window.clipboardData);
-              if (!clip) return;
-              const pastedData = clip.getData('text');
-              if (!pastedData) return;
+                // Mostrar Modal
+                previewModal.style.display = "block";
+                previewContainer.innerHTML = '<p style="text-align:center; padding:20px;">Generando vista previa...</p>';
 
-              const tbody = document.getElementById(TBODY_ID);
-              if (!tbody) return;
+                setTimeout(() => {
+                    try {
+                        // 1. Generar el Blob solo para este registro
+                        // *** CAMBIO: Pasar 'true' para indicar que es vista previa ***
+                        const blob = generarBlobDOCX(contexto, true);
 
-              // ¿Es una cuadrícula (p. ej., copiada de Excel o varias líneas)?
-              const hasGrid = pastedData.includes('\t') || pastedData.includes('\n');
+                        // 2. Limpiar contenedor
+                        previewContainer.innerHTML = "";
 
-              // Primer input de la primera fila
-              const firstCell = tbody.querySelector('tr.fila-registro-dinamica:first-child input');
+                        // 3. Renderizar usando docx-preview
+                        // renderAsync(blob, element, containerElement, options)
+                        docx.renderAsync(blob, previewContainer, null, {
+                            inWrapper: true,
+                            ignoreWidth: false,
+                            className: "docx-wrapper"
+                        }).then(() => {
+                            log("Vista previa generada con éxito.");
+                        });
 
-              // Solo hacemos pegado masivo si pegamos una cuadrícula EN ese primer input
-              const bulkPaste = hasGrid && target === firstCell;
-
-              if (!bulkPaste) {
-                // Pegado normal en cualquier otro input/caso
-                return; // NO preventDefault => el navegador pega el texto en el campo
-              }
-
-              // Pegado masivo
-              e.preventDefault();
-
-              // Normalizamos saltos de línea (por si hay \r\n)
-              const rows = pastedData.replace(/\r/g, '').trim().split('\n');
-
-              const numCols = detectedVars.length;
-              let rowsProcessed = 0;
-
-              rows.forEach((rowString, rowIndex) => {
-                const cells = rowString.split('\t');
-                if (!cells.length) return;
-
-                // Primera línea: reutiliza la primera fila; el resto crea filas nuevas
-                let targetRow;
-                if (rowIndex === 0) {
-                  targetRow = tbody.querySelector('tr.fila-registro-dinamica:first-child');
-                } else {
-                  targetRow = construirFila(detectedVars, true);
-                  tbody.appendChild(targetRow);
-                }
-
-                const inputs = targetRow.querySelectorAll('input');
-                cells.forEach((cellValue, colIndex) => {
-                  if (colIndex < numCols) {
-                    const input = inputs[colIndex];
-                    if (input) {
-                      input.value = String(cellValue).trim();
+                    } catch (e) {
+                        previewContainer.innerHTML = `<p style="color:red; text-align:center;">Error al generar vista previa: ${e.message}</p>`;
+                        console.error(e);
                     }
-                  }
+                }, 100);
+            }
+
+            window.cerrarPreview = function() {
+                previewModal.style.display = "none";
+            }
+
+            // --- Pegado Masivo ---
+            window.handlePaste = function (e) {
+                const target = e.target;
+                if (!(target instanceof HTMLInputElement)) return;
+
+                const clip = (e.clipboardData || window.clipboardData);
+                if (!clip) return;
+                const pastedData = clip.getData('text');
+                if (!pastedData) return;
+
+                const tbody = document.getElementById(TBODY_ID);
+                if (!tbody) return;
+
+                const hasGrid = pastedData.includes('\t') || pastedData.includes('\n');
+                const firstCell = tbody.querySelector('tr.fila-registro-dinamica:first-child input');
+                const bulkPaste = hasGrid && target === firstCell;
+
+                if (!bulkPaste) return;
+
+                e.preventDefault();
+                const rows = pastedData.replace(/\r/g, '').trim().split('\n');
+                const numCols = detectedVars.length;
+                let rowsProcessed = 0;
+
+                rows.forEach((rowString, rowIndex) => {
+                    const cells = rowString.split('\t');
+                    if (!cells.length) return;
+
+                    let targetRow;
+                    if (rowIndex === 0) {
+                        targetRow = tbody.querySelector('tr.fila-registro-dinamica:first-child');
+                    } else {
+                        targetRow = construirFila(detectedVars, true);
+                        tbody.appendChild(targetRow);
+                    }
+
+                    const inputs = targetRow.querySelectorAll('input');
+                    cells.forEach((cellValue, colIndex) => {
+                        if (colIndex < numCols) {
+                            const input = inputs[colIndex];
+                            if (input) input.value = String(cellValue).trim();
+                        }
+                    });
+                    rowsProcessed++;
                 });
 
-                rowsProcessed++;
-              });
-
-              log(`✅ Pegados ${rowsProcessed} registro(s) desde el portapapeles.`);
-              // Si se pegaron varias filas, seguramente ahora estamos en modo horizontal
-              updateLayoutMode();
+                log(`✅ Pegados ${rowsProcessed} registro(s) desde el portapapeles.`);
+                updateLayoutMode();
             };
+
+            // --- Lectura de Datos ---
+            function leerContextoDeFila(fila) {
+                const inputs = fila.querySelectorAll('input');
+                const contexto = {};
+                inputs.forEach(input => {
+                    let valor = input.value.trim();
+                    if (input.type === 'date' && valor) {
+                        valor = formatDateToSpanish(valor);
+                    }
+                    setDeep(contexto, input.name, valor);
+                });
+                return contexto;
+            }
 
             function leerTodosLosContextos() {
                 const cuerpoTabla = document.getElementById(TBODY_ID);
                 if(!cuerpoTabla) return [];
-
                 const filas = cuerpoTabla.querySelectorAll('tr.fila-registro-dinamica');
                 const contextos = [];
-
                 filas.forEach((fila) => {
-                    const inputs = fila.querySelectorAll('input');
-                    const contexto = {};
-                    let camposLlenos = false;
-
-                    inputs.forEach(input => {
-                        let valor = input.value.trim();
-
-                        if (input.type === 'date' && valor) {
-                            valor = formatDateToSpanish(valor);
-                        }
-
-                        setDeep(contexto, input.name, valor);
-
-                        if (valor !== '' && valor !== '0') {
-                            camposLlenos = true;
-                        }
-                    });
-
-                    if (camposLlenos) {
-                        contextos.push(contexto);
-                    }
+                    const ctx = leerContextoDeFila(fila);
+                    // Validar si tiene algo de data
+                    // (Opcional: podrías filtrar filas vacías aquí)
+                    contextos.push(ctx);
                 });
-
                 return contextos;
             }
 
-            // --- Funciones de Utilidad (Restantes) ---
+            // --- LÓGICA CORE: Generar Blob DOCX ---
+            // Acepta un nuevo parámetro 'isPreview'
+            function generarBlobDOCX(contexto, isPreview = false) {
+                if (!originalZip) throw new Error("No hay plantilla cargada");
+
+                const replacements = {};
+                detectedVars.forEach((k) => {
+                    const parts = k.split(".");
+                    let cur = contexto;
+                    let val = "";
+
+                    // Lógica para obtener el valor profundo
+                    for (const p of parts) {
+                        if (cur && typeof cur === "object" && p in cur) cur = cur[p];
+                        else {
+                            cur = null;
+                            break;
+                        }
+                    }
+                    if (cur != null && cur !== undefined) val = cur;
+
+                    // *** CAMBIO CLAVE AQUÍ ***
+                    // Si es vista previa Y el valor está vacío, usa la etiqueta Jinja como valor.
+                    if (isPreview && (!val || String(val).trim() === "")) {
+                        val = `{{${k}}}`;
+                    }
+
+                    replacements[k] = val;
+                });
+
+                // Clonar zip
+                const ab = originalZip.generate({ type: "arraybuffer" });
+                const zip2 = new PizZip(ab);
+
+                // Reemplazar XMLs
+                const files = Object.keys(zip2.files || {});
+                const xmlNames = files.filter(n => n.startsWith("word/") && n.endsWith(".xml"));
+
+                for (const name of xmlNames) {
+                    const f = zip2.file(name);
+                    if (!f) continue;
+                    let xml = f.asText();
+                    const newXml = replacePlaceholdersInXml(xml, replacements);
+                    if (newXml !== xml) {
+                        zip2.file(name, newXml);
+                    }
+                }
+
+                return zip2.generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                });
+            }
+
+            // --- Descarga Final ---
+            window.generateAndDownload = function() {
+                try {
+                    const contextos = leerTodosLosContextos();
+                    if (contextos.length === 0) {
+                        log("🚫 No hay datos para generar.");
+                        return;
+                    }
+
+                    // Filtrar filas completamente vacías para no generar basura
+                    // NOTA: Se llama a generarBlobDOCX sin 'true' para que las variables vacías desaparezcan
+                    const validContexts = contextos.filter(c => Object.keys(c).length > 0 && Object.values(c).some(val => val && String(val).trim() !== ''));
+
+                    if (validContexts.length === 0) {
+                         log("🚫 Todos los registros están vacíos.");
+                         return;
+                    }
+
+                    log(`Generando ${validContexts.length} documento(s)...`);
+
+                    const baseFilename = (templateFilename || "documento").replace(/\.docx$/i, "");
+                    const generatedBlobs = [];
+
+                    validContexts.forEach((ctx, index) => {
+                        try {
+                            // Generación final (isPreview = false por defecto)
+                            const blob = generarBlobDOCX(ctx);
+                            const nameVal = getRadicadoFromContext(ctx) || `Doc_${index+1}`;
+                            generatedBlobs.push({ blob: blob, name: nameVal, index: index });
+                        } catch (err) {
+                            log(`❌ Error fila ${index+1}: ${err.message}`);
+                        }
+                    });
+
+                    if (generatedBlobs.length === 1) {
+                        saveAs(generatedBlobs[0].blob, `${baseFilename}_${generatedBlobs[0].name}.docx`);
+                        log("✅ Documento descargado.");
+                    } else if (generatedBlobs.length > 1) {
+                        // ZIP
+                        if (typeof JSZip === 'undefined') {
+                            log("⚠️ JSZip no cargó, descargando el primero.");
+                            saveAs(generatedBlobs[0].blob, `${baseFilename}_${generatedBlobs[0].name}.docx`);
+                        } else {
+                            const zipArchiver = new JSZip();
+                            generatedBlobs.forEach(item => {
+                                const cleanName = item.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+                                zipArchiver.file(`${cleanName}.docx`, item.blob);
+                            });
+                            zipArchiver.generateAsync({type:"blob"}).then(content => {
+                                saveAs(content, `${baseFilename}_lote.zip`);
+                                log("✅ ZIP descargado con éxito.");
+                            });
+                        }
+                    }
+
+                } catch(e) {
+                    log("Error General: " + e.message);
+                }
+            }
+
+            // --- Helpers y Utilidades ---
+            function getRadicadoFromContext(ctx) {
+                // Intenta encontrar una variable que sirva como nombre de archivo
+                const nameKeys = ['radicado', 'nombre', 'consecutivo', 'referencia'];
+                for(const key of nameKeys) {
+                    const val = getDeep(ctx, key);
+                    if (val && String(val).trim().length > 0) return String(val).replace(/\s/g, '_');
+                }
+                return null;
+            }
+
             function formatDateToSpanish(dateStr) {
                 if (!dateStr) return "";
-                const meses = [
-                    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-                    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-                ];
+                const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio","julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
                 const [year, month, day] = dateStr.split("-");
                 return `${parseInt(day)} de ${meses[parseInt(month) - 1]} de ${year}`;
             }
-            function loadScript(url) {
-                return new Promise((resolve, reject) => {
-                    const s = document.createElement("script");
-                    s.src = url;
-                    s.async = true;
-                    s.onload = () => resolve(url);
-                    s.onerror = () => reject(url);
-                    document.head.appendChild(s);
-                });
-            }
-            async function ensurePizzipAndSaver() {
-                const pizUrls = [ "https://unpkg.com/pizzip@3.1.8/dist/pizzip.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.5/pizzip.min.js", ];
-                const saverUrls = [ "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js", "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js", ];
-                let pizLoaded = false;
-                for (const u of pizUrls) { try { await loadScript(u); if (typeof window.PizZip !== "undefined") { pizLoaded = true; break; } } catch (e) {} }
-                if (!pizLoaded) throw new Error("No se pudo cargar PizZip.");
-                let saverLoaded = false;
-                for (const u of saverUrls) { try { await loadScript(u); if (typeof saveAs !== "undefined") { saverLoaded = true; break; } } catch (e) {} }
-                if (!saverLoaded) throw new Error("No se pudo cargar FileSaver.");
-            }
+
             function log(msg) {
                 console.log(msg);
                 logEl.textContent += msg + "\n";
                 logEl.scrollTop = logEl.scrollHeight;
             }
+
             function escapeXml(s) {
                 if (s == null) return "";
                 return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             }
+
             function setDeep(obj, dottedKey, value) {
                 const parts = dottedKey.split(".");
                 let cur = obj;
@@ -484,19 +730,18 @@
                 }
                 cur[parts[parts.length - 1]] = value;
             }
+
             function getDeep(obj, dottedKey) {
                 const parts = dottedKey.split(".");
                 let cur = obj;
                 for (let i = 0; i < parts.length; i++) {
                     const p = parts[i];
-                    if (cur && typeof cur === "object" && p in cur) {
-                        cur = cur[p];
-                    } else {
-                        return undefined;
-                    }
+                    if (cur && typeof cur === "object" && p in cur) cur = cur[p];
+                    else return undefined;
                 }
                 return cur;
             }
+
             function extractVarsFromZip(zip) {
                 const files = Object.keys(zip.files || {});
                 const placeholderRegex = /{{\s*([\w.]+)\s*}}/g;
@@ -506,9 +751,7 @@
                     const fileObj = zip.file(name);
                     if (!fileObj) continue;
                     let xml;
-                    try {
-                        xml = fileObj.asText();
-                    } catch (e) { continue; }
+                    try { xml = fileObj.asText(); } catch (e) { continue; }
                     const tRegex = /<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
                     let parts = [], m;
                     while ((m = tRegex.exec(xml)) !== null) { parts.push(m[1]); }
@@ -519,65 +762,73 @@
                 }
                 return Array.from(varsSet);
             }
+
             function replacePlaceholdersInXml(xml, replacements) {
+                // Esta es la función robusta que maneja placeholders rotos entre tags <w:t>
                 const tRegex = /(<w:t[^>]*>)([\s\S]*?)(<\/w:t>)/g;
                 let runs = [];
                 let match;
+
+                // 1. Extraer todos los <w:t> runs
                 while ((match = tRegex.exec(xml)) !== null) {
-                    runs.push({
-                        prefix: match[1],
-                        text: match[2],
-                        suffix: match[3],
-                        start: match.index,
-                        full: match[0],
-                    });
+                    runs.push({ prefix: match[1], text: match[2], suffix: match[3], start: match.index, full: match[0] });
                 }
                 if (runs.length === 0) return xml;
+
+                // 2. Concatenar textos y mapear índices
                 const texts = runs.map((r) => r.text || "");
                 const cum = [];
                 let s = 0;
-                for (let i = 0; i < texts.length; i++) {
-                    s += texts[i].length;
-                    cum.push(s);
-                }
+                for (let i = 0; i < texts.length; i++) { s += texts[i].length; cum.push(s); }
                 const combined = texts.join("");
+
+                // 3. Encontrar placeholders en el texto combinado
                 const placeholderRegex = /{{\s*([\w.]+)\s*}}/g;
                 const matches = [];
                 let mm;
                 while ((mm = placeholderRegex.exec(combined)) !== null) {
-                    matches.push({
-                        full: mm[0],
-                        key: mm[1],
-                        index: mm.index,
-                        length: mm[0].length,
-                    });
+                    matches.push({ full: mm[0], key: mm[1], index: mm.index, length: mm[0].length });
                 }
                 if (matches.length === 0) return xml;
+
+                // 4. Reemplazar de atrás hacia adelante para no romper índices
                 for (let mi = matches.length - 1; mi >= 0; mi--) {
                     const m = matches[mi];
                     const startIdx = m.index;
                     const endIdx = m.index + m.length - 1;
+
+                    // a. Encontrar el run donde empieza el placeholder
                     let startRun = 0;
                     while (startRun < cum.length && startIdx >= cum[startRun]) startRun++;
-                    const runStartOffset =
-                        startRun === 0 ? startIdx : startIdx - cum[startRun - 1];
+                    const runStartOffset = startRun === 0 ? startIdx : startIdx - cum[startRun - 1];
+
+                    // b. Encontrar el run donde termina el placeholder
                     let endRun = 0;
                     while (endRun < cum.length && endIdx >= cum[endRun]) endRun++;
-                    const runEndOffset =
-                        endRun === 0 ? endIdx : endIdx - cum[endRun - 1];
+                    const runEndOffset = endRun === 0 ? endIdx : endIdx - cum[endRun - 1];
+
+                    // c. Obtener el valor de reemplazo
                     const replRaw = m.key in replacements ? replacements[m.key] : "";
                     const repl = escapeXml(String(replRaw));
+
+                    // d. Aplicar el reemplazo en los textos originales
                     const before = texts[startRun].slice(0, runStartOffset);
                     const after = texts[endRun].slice(runEndOffset + 1);
+
                     texts[startRun] = before + repl + after;
+
+                    // Vaciar los runs intermedios
                     for (let r = startRun + 1; r <= endRun; r++) texts[r] = "";
                 }
+
+                // 5. Reconstruir el XML
                 let outXml = "";
                 let curPos = 0;
                 let ri = 0;
-                tRegex.lastIndex = 0;
+                tRegex.lastIndex = 0; // Resetear la regex para la reconstrucción
                 while ((match = tRegex.exec(xml)) !== null) {
                     outXml += xml.slice(curPos, match.index);
+                    // Usar el texto modificado
                     outXml += runs[ri].prefix + texts[ri].replace(/<w:br\/>/g, '') + runs[ri].suffix;
                     curPos = match.index + match[0].length;
                     ri++;
@@ -586,10 +837,8 @@
                 return outXml;
             }
 
-            // --- FUNCIÓN MODIFICADA: CONSTRUYE LA TABLA DE ENTRADA DINÁMICA ---
             function buildForm(vars) {
                 formArea.innerHTML = "";
-
                 detectedVars = vars;
 
                 if (!detectedVars || detectedVars.length === 0) {
@@ -600,12 +849,12 @@
 
                 const fieldset = document.createElement('fieldset');
                 const legend = document.createElement('legend');
-                legend.textContent = "2) Registros de Documentos a Generar (Generación en Bloque)";
+                legend.textContent = "2) Registros de Documentos";
                 fieldset.appendChild(legend);
 
                 const info = document.createElement("p");
                 info.className = "small";
-                info.innerHTML = `Variables detectadas (Columnas): <b>${detectedVars.join(", ")}</b>.`;
+                info.innerHTML = `Variables: <b>${detectedVars.join(", ")}</b>.`;
                 fieldset.appendChild(info);
 
                 const tableWrapper = document.createElement('div');
@@ -613,247 +862,47 @@
                 tableWrapper.id = TABLE_CONTAINER_ID;
                 tableWrapper.tabIndex = 0;
 
+                // Añadir listener de pegado masivo al wrapper
+                tableWrapper.addEventListener('paste', handlePaste);
+
                 const table = document.createElement('table');
-                table.id = 'tabla-dinamica';
+                table.id = "tabla-dinamica";
 
                 const thead = document.createElement('thead');
-                const headerRow = document.createElement('tr');
+                const trHead = document.createElement('tr');
                 detectedVars.forEach(v => {
                     const th = document.createElement('th');
                     th.textContent = v;
-                    headerRow.appendChild(th);
+                    trHead.appendChild(th);
                 });
                 const thAccion = document.createElement('th');
-                thAccion.textContent = 'ACCIÓN';
-                headerRow.appendChild(thAccion);
-                thead.appendChild(headerRow);
+                thAccion.textContent = 'Acción';
+                trHead.appendChild(thAccion);
+                thead.appendChild(trHead);
                 table.appendChild(thead);
 
                 const tbody = document.createElement('tbody');
                 tbody.id = TBODY_ID;
-
-                tbody.appendChild(construirFila(detectedVars, true));
-
                 table.appendChild(tbody);
+
                 tableWrapper.appendChild(table);
                 fieldset.appendChild(tableWrapper);
 
-                const btnAgregar = document.createElement('button');
-                btnAgregar.textContent = '➕ Añadir Fila';
-                btnAgregar.onclick = window.agregarFila;
-                btnAgregar.style.marginBottom = '1em';
-                fieldset.appendChild(btnAgregar);
+                const btnAddRow = document.createElement('button');
+                btnAddRow.textContent = '➕ Agregar Registro';
+                btnAddRow.onclick = agregarFila;
+                btnAddRow.style.marginTop = '15px';
+                fieldset.appendChild(btnAddRow);
 
                 formArea.appendChild(fieldset);
 
+                // Primera fila y actualización de estado
+                agregarFila();
                 generateBtn.disabled = false;
-                reloadBtn.classList.remove("hidden");
-
-                tableWrapper.addEventListener('paste', window.handlePaste);
-
-                // Arrancar en modo vertical (un solo registro)
-                updateLayoutMode();
+                fileInput.classList.add('hidden');
+                reloadBtn.classList.remove('hidden');
             }
 
-            // === Utilidad para obtener RADICADO desde un contexto (admite claves anidadas) ===
-            function getRadicadoFromContext(ctx) {
-                // 1) Buscar cualquier variable cuya última parte sea "radicado" (insensible a mayúsculas)
-                for (const key of detectedVars) {
-                    const last = key.split('.').pop();
-                    if (last && last.toLowerCase() === 'radicado') {
-                        const val = getDeep(ctx, key);
-                        if (val) return String(val).trim();
-                    }
-                }
-                // 2) Fallback rápido
-                if (ctx && (ctx.RADICADO || ctx.radicado)) {
-                    return String(ctx.RADICADO || ctx.radicado).trim();
-                }
-                return '';
-            }
-
-            // --- FUNCIÓN PRINCIPAL: Generación y Descarga en Bloque ---
-            window.generateAndDownload = function() {
-                try {
-                    if (!originalZip) {
-                        log("No hay plantilla cargada.");
-                        return;
-                    }
-
-                    const contextos = leerTodosLosContextos();
-
-                    if (contextos.length === 0) {
-                        log("🚫 No hay registros válidos para generar documentos.");
-                        return;
-                    }
-
-                    log(`Generando ${contextos.length} documento(s) en bloque...`);
-
-                    const generatedBlobs = [];
-                    const baseFilename = (templateFilename || "plantilla").replace(/\.docx$/i, "");
-                    const now = new Date();
-                    const dd = String(now.getDate()).padStart(2, '0');
-                    const mm = String(now.getMonth() + 1).padStart(2, '0');
-                    const yy = String(now.getFullYear()).slice(-2);
-                    const fecha = `${dd}-${mm}-${yy}`;
-
-                    let count = 0;
-
-                    contextos.forEach((ctx, index) => {
-                        const replacements = {};
-
-                        detectedVars.forEach((k) => {
-                            const parts = k.split(".");
-                            let cur = ctx;
-                            let val = "";
-                            for (const p of parts) {
-                                if (cur && typeof cur === "object" && p in cur) cur = cur[p];
-                                else {
-                                    cur = null;
-                                    break;
-                                }
-                            }
-                            if (cur != null && cur !== undefined) val = cur;
-                            replacements[k] = val;
-                        });
-
-                        try {
-                            const ab = originalZip.generate
-                                ? originalZip.generate({ type: "arraybuffer" })
-                                : originalZip;
-                            const zip2 = new PizZip(ab);
-                            const files = Object.keys(zip2.files || {});
-                            const xmlNames = files.filter(
-                                (n) => n.startsWith("word/") && n.endsWith(".xml")
-                            );
-
-                            for (const name of xmlNames) {
-                                const f = zip2.file(name);
-                                if (!f) continue;
-                                let xml = f.asText();
-                                const newXml = replacePlaceholdersInXml(xml, replacements);
-                                if (newXml !== xml) {
-                                    zip2.file(name, newXml);
-                                }
-                            }
-
-                            const outBlob = zip2.generate({
-                                type: "blob",
-                                mimeType:
-                                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            });
-
-                            // Mantener un "name" utilitario para archivos internos
-                            generatedBlobs.push({
-                                blob: outBlob,
-                                index: index + 1,
-                                name: ctx[detectedVars[0]] || `Doc_${index+1}`
-                            });
-                            count++;
-                        } catch (err) {
-                            log(`❌ Error al generar documento #${index + 1}: ${err.message}`);
-                        }
-                    });
-
-                    if (generatedBlobs.length === 0) {
-                        log("❌ No se pudo generar ningún documento. Revisa los errores.");
-                        return;
-                    }
-
-                    if (generatedBlobs.length === 1) {
-                        // Documento único
-                        const radicado = getRadicadoFromContext(contextos[0]);
-                        const outName = `${radicado ? radicado + '_' : ''}${baseFilename}_${fecha}.docx`;
-                        saveAs(generatedBlobs[0].blob, outName);
-                        log(`✅ Documento único generado: ${outName}`);
-                    } else {
-                        // Varios -> ZIP
-                        if (typeof window.JSZip === 'undefined') {
-                            log("⚠️ Se requiere la librería JSZip para descargar varios documentos en un solo archivo.");
-                            // Fallback: descargar el primero con un nombre razonable
-                            const fallbackName = `${baseFilename}_Doc_1_${fecha}.docx`;
-                            saveAs(generatedBlobs[0].blob, fallbackName);
-                            log(`✅ Se generaron ${count} documentos. Descargado el primero como: ${fallbackName}`);
-                        } else {
-                            const zipArchiver = new JSZip();
-                            generatedBlobs.forEach(item => {
-                                const namePart = item.name.toString().replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
-                                zipArchiver.file(`${baseFilename}_${namePart}_${item.index}.docx`, item.blob);
-                            });
-
-                            zipArchiver.generateAsync({ type: "blob" }).then(zipBlob => {
-                                const zipName = `${baseFilename}_${fecha}.zip`;
-                                saveAs(zipBlob, zipName);
-                                log(`✅ ${count} documentos generados y comprimidos en: ${zipName}`);
-                            });
-                        }
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    log("❌ Error al generar (general): " + (err && err.message ? err.message : err));
-                }
-            }
-
-            // --- Funciones de Carga y Eventos (Restantes) ---
-            window.onFileSelected = async function(ev) {
-                logEl.textContent = "";
-                generateBtn.disabled = true;
-                formArea.innerHTML = "<p>Procesando plantilla…</p>";
-                detectedVars = [];
-                const f = ev.target.files && ev.target.files[0];
-                if (!f) {
-                    formArea.innerHTML = "<p>No seleccionaste archivo.</p>";
-                    return;
-                }
-                templateFilename = f.name;
-                try {
-                    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js");
-                    await ensurePizzipAndSaver();
-                } catch (e) {
-                    formArea.innerHTML = `<p style="color:crimson">Error cargando dependencias: ${e.message}</p>`;
-                    log("Error al cargar librerías: " + e.message);
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    try {
-                        const arrayBuffer = e.target.result;
-                        const zip = new PizZip(arrayBuffer);
-                        originalZip = zip;
-                        detectedVars = extractVarsFromZip(zip);
-
-                        if (detectedVars.length === 0) {
-                            formArea.innerHTML =
-                                "<p><i>No se encontraron variables {{...}}. Asegúrate de usar llaves dobles.</i></p>";
-                            log("No se detectaron variables.");
-                            generateBtn.disabled = true;
-                            return;
-                        }
-                        buildForm(detectedVars);
-                        log("Plantilla procesada. Variables: " + detectedVars.join(", "));
-                    } catch (err) {
-                        console.error(err);
-                        formArea.innerHTML =
-                            "<p style='color:crimson'>Error procesando el .docx: " +
-                            (err && err.message ? err.message : err) +
-                            "</p>";
-                        log("Error interno: " + (err && err.stack ? err.stack : err));
-                        generateBtn.disabled = true;
-                    }
-                };
-                reader.readAsArrayBuffer(f);
-            }
-
-            fileInput.addEventListener("change", window.onFileSelected);
-            generateBtn.addEventListener("click", window.generateAndDownload);
-            reloadBtn.addEventListener("click", () => {
-                fileInput.value = "";
-                formArea.innerHTML = "";
-                logEl.textContent = "";
-                generateBtn.disabled = true;
-                reloadBtn.classList.add("hidden");
-            });
         })();
     </script>
 </body>
