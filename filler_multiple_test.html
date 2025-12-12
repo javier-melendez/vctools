@@ -666,7 +666,7 @@
                     });
 
                     if (generatedBlobs.length === 1) {
-                        saveAs(generatedBlobs[0].blob, `${baseFilename}_${generatedBlobs[0].name}.docx`);
+                        saveAs(generatedBlobs[0].blob, `${generatedBlobs[0].name}_${baseFilename}.docx`);
                         log("✅ Documento descargado.");
                     } else if (generatedBlobs.length > 1) {
                         // ZIP
@@ -677,7 +677,7 @@
                             const zipArchiver = new JSZip();
                             generatedBlobs.forEach(item => {
                                 const cleanName = item.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-                                zipArchiver.file(`${cleanName}.docx`, item.blob);
+                                zipArchiver.file(`${cleanName}_${baseFilename}.docx`, item.blob);
                             });
                             zipArchiver.generateAsync({type:"blob"}).then(content => {
                                 saveAs(content, `${baseFilename}_lote.zip`);
@@ -693,14 +693,18 @@
 
             // --- Helpers y Utilidades ---
             function getRadicadoFromContext(ctx) {
-                // Intenta encontrar una variable que sirva como nombre de archivo
-                const nameKeys = ['radicado', 'nombre', 'consecutivo', 'referencia'];
-                for(const key of nameKeys) {
-                    const val = getDeep(ctx, key);
-                    if (val && String(val).trim().length > 0) return String(val).replace(/\s/g, '_');
+                // Busca únicamente "radicado", sin importar mayúsculas/minúsculas
+                for (const key of Object.keys(ctx)) {
+                    if (key.toLowerCase() === 'radicado') {
+                        const val = ctx[key];
+                        if (val && String(val).trim()) {
+                            return String(val).replace(/\s/g, '_');
+                        }
+                    }
                 }
                 return null;
             }
+
 
             function formatDateToSpanish(dateStr) {
                 if (!dateStr) return "";
