@@ -326,9 +326,40 @@
             const TBODY_ID = "cuerpo-registros-dinamicos";
             const TABLE_CONTAINER_ID = "tableContainer";
 
+            // ==========================================================
+            // ✅ NUEVO: PROTECCIÓN CONTRA CIERRE/RECARGA SIN ADVERTENCIA
+            // ==========================================================
+            let hasUnsavedChanges = false;
+            const markDirty = () => { hasUnsavedChanges = true; };
+            const markClean = () => { hasUnsavedChanges = false; };
+
+            // Advertencia nativa al cerrar pestaña/ventana, recargar o navegar
+            window.addEventListener("beforeunload", function (e) {
+                if (!hasUnsavedChanges) return;
+                e.preventDefault();
+                e.returnValue = ""; // Texto será genérico por el navegador
+            });
+
+            // Detecta edición en cualquier input dentro del contenedor de tabla
+            document.addEventListener("input", function (e) {
+                const el = e.target;
+                if (el && el.matches && el.matches(`#${TABLE_CONTAINER_ID} input`)) {
+                    markDirty();
+                }
+            });
+            // ==========================================================
+
             // Listeners iniciales
             fileInput.addEventListener('change', handleFileSelect, false);
-            reloadBtn.addEventListener('click', () => location.reload());
+
+            // ✅ Ajuste: antes recargaba directo; ahora si hay cambios, confirma
+            reloadBtn.addEventListener('click', () => {
+                if (hasUnsavedChanges) {
+                    const ok = confirm("Vas a recargar y perder cambios no guardados. ¿Seguro?");
+                    if (!ok) return;
+                }
+                location.reload();
+            });
 
             // Cerrar modal al hacer click fuera
             window.onclick = function(event) {
@@ -352,6 +383,8 @@
                         const vars = extractVarsFromZip(zip);
                         log(`✅ Plantilla cargada. ${vars.length} variables detectadas.`);
                         buildForm(vars);
+                        // cargar plantilla no es "cambio" en datos, así que lo dejamos limpio
+                        markClean();
                     } catch (err) {
                         log("❌ Error al leer el archivo DOCX. Asegúrate de que es un .docx válido sin contraseña.");
                         console.error(err);
@@ -443,6 +476,7 @@
                 const nuevaFila = construirFila(detectedVars, true);
                 cuerpoTabla.appendChild(nuevaFila);
                 updateLayoutMode();
+                markDirty(); // ✅ NUEVO
             }
 
             window.eliminarFila = function(btnElement) {
@@ -458,6 +492,7 @@
                     }
                 }
                 updateLayoutMode();
+                markDirty(); // ✅ NUEVO
             }
 
             // --- Previsualización ---
@@ -472,14 +507,12 @@
                 setTimeout(() => {
                     try {
                         // 1. Generar el Blob solo para este registro
-                        // *** CAMBIO: Pasar 'true' para indicar que es vista previa ***
                         const blob = generarBlobDOCX(contexto, true);
 
                         // 2. Limpiar contenedor
                         previewContainer.innerHTML = "";
 
                         // 3. Renderizar usando docx-preview
-                        // renderAsync(blob, element, containerElement, options)
                         docx.renderAsync(blob, previewContainer, null, {
                             inWrapper: true,
                             ignoreWidth: false,
@@ -519,6 +552,8 @@
                 if (!bulkPaste) return;
 
                 e.preventDefault();
+                markDirty(); // ✅ NUEVO
+
                 const rows = pastedData.replace(/\r/g, '').trim().split('\n');
                 const numCols = detectedVars.length;
                 let rowsProcessed = 0;
@@ -570,15 +605,12 @@
                 const contextos = [];
                 filas.forEach((fila) => {
                     const ctx = leerContextoDeFila(fila);
-                    // Validar si tiene algo de data
-                    // (Opcional: podrías filtrar filas vacías aquí)
                     contextos.push(ctx);
                 });
                 return contextos;
             }
 
             // --- LÓGICA CORE: Generar Blob DOCX ---
-            // Acepta un nuevo parámetro 'isPreview'
             function generarBlobDOCX(contexto, isPreview = false) {
                 if (!originalZip) throw new Error("No hay plantilla cargada");
 
@@ -588,7 +620,6 @@
                     let cur = contexto;
                     let val = "";
 
-                    // Lógica para obtener el valor profundo
                     for (const p of parts) {
                         if (cur && typeof cur === "object" && p in cur) cur = cur[p];
                         else {
@@ -598,8 +629,6 @@
                     }
                     if (cur != null && cur !== undefined) val = cur;
 
-                    // *** CAMBIO CLAVE AQUÍ ***
-                    // Si es vista previa Y el valor está vacío, usa la etiqueta Jinja como valor.
                     if (isPreview && (!val || String(val).trim() === "")) {
                         val = `{{${k}}}`;
                     }
@@ -607,11 +636,9 @@
                     replacements[k] = val;
                 });
 
-                // Clonar zip
                 const ab = originalZip.generate({ type: "arraybuffer" });
                 const zip2 = new PizZip(ab);
 
-                // Reemplazar XMLs
                 const files = Object.keys(zip2.files || {});
                 const xmlNames = files.filter(n => n.startsWith("word/") && n.endsWith(".xml"));
 
@@ -640,8 +667,6 @@
                         return;
                     }
 
-                    // Filtrar filas completamente vacías para no generar basura
-                    // NOTA: Se llama a generarBlobDOCX sin 'true' para que las variables vacías desaparezcan
                     const validContexts = contextos.filter(c => Object.keys(c).length > 0 && Object.values(c).some(val => val && String(val).trim() !== ''));
 
                     if (validContexts.length === 0) {
@@ -656,7 +681,6 @@
 
                     validContexts.forEach((ctx, index) => {
                         try {
-                            // Generación final (isPreview = false por defecto)
                             const blob = generarBlobDOCX(ctx);
                             const nameVal = getRadicadoFromContext(ctx) || `Doc_${index+1}`;
                             generatedBlobs.push({ blob: blob, name: nameVal, index: index });
@@ -668,11 +692,12 @@
                     if (generatedBlobs.length === 1) {
                         saveAs(generatedBlobs[0].blob, `${generatedBlobs[0].name}_${baseFilename}.docx`);
                         log("✅ Documento descargado.");
+                        markClean(); // ✅ NUEVO: ya “guardaste” (descargaste)
                     } else if (generatedBlobs.length > 1) {
-                        // ZIP
                         if (typeof JSZip === 'undefined') {
                             log("⚠️ JSZip no cargó, descargando el primero.");
                             saveAs(generatedBlobs[0].blob, `${baseFilename}_${generatedBlobs[0].name}.docx`);
+                            markClean(); // ✅ NUEVO
                         } else {
                             const zipArchiver = new JSZip();
                             generatedBlobs.forEach(item => {
@@ -682,6 +707,7 @@
                             zipArchiver.generateAsync({type:"blob"}).then(content => {
                                 saveAs(content, `${baseFilename}_lote.zip`);
                                 log("✅ ZIP descargado con éxito.");
+                                markClean(); // ✅ NUEVO
                             });
                         }
                     }
@@ -693,7 +719,6 @@
 
             // --- Helpers y Utilidades ---
             function getRadicadoFromContext(ctx) {
-                // Busca únicamente "radicado", sin importar mayúsculas/minúsculas
                 for (const key of Object.keys(ctx)) {
                     if (key.toLowerCase() === 'radicado') {
                         const val = ctx[key];
@@ -704,7 +729,6 @@
                 }
                 return null;
             }
-
 
             function formatDateToSpanish(dateStr) {
                 if (!dateStr) return "";
@@ -768,25 +792,21 @@
             }
 
             function replacePlaceholdersInXml(xml, replacements) {
-                // Esta es la función robusta que maneja placeholders rotos entre tags <w:t>
                 const tRegex = /(<w:t[^>]*>)([\s\S]*?)(<\/w:t>)/g;
                 let runs = [];
                 let match;
 
-                // 1. Extraer todos los <w:t> runs
                 while ((match = tRegex.exec(xml)) !== null) {
                     runs.push({ prefix: match[1], text: match[2], suffix: match[3], start: match.index, full: match[0] });
                 }
                 if (runs.length === 0) return xml;
 
-                // 2. Concatenar textos y mapear índices
                 const texts = runs.map((r) => r.text || "");
                 const cum = [];
                 let s = 0;
                 for (let i = 0; i < texts.length; i++) { s += texts[i].length; cum.push(s); }
                 const combined = texts.join("");
 
-                // 3. Encontrar placeholders en el texto combinado
                 const placeholderRegex = /{{\s*([\w.]+)\s*}}/g;
                 const matches = [];
                 let mm;
@@ -795,44 +815,36 @@
                 }
                 if (matches.length === 0) return xml;
 
-                // 4. Reemplazar de atrás hacia adelante para no romper índices
                 for (let mi = matches.length - 1; mi >= 0; mi--) {
                     const m = matches[mi];
                     const startIdx = m.index;
                     const endIdx = m.index + m.length - 1;
 
-                    // a. Encontrar el run donde empieza el placeholder
                     let startRun = 0;
                     while (startRun < cum.length && startIdx >= cum[startRun]) startRun++;
                     const runStartOffset = startRun === 0 ? startIdx : startIdx - cum[startRun - 1];
 
-                    // b. Encontrar el run donde termina el placeholder
                     let endRun = 0;
                     while (endRun < cum.length && endIdx >= cum[endRun]) endRun++;
                     const runEndOffset = endRun === 0 ? endIdx : endIdx - cum[endRun - 1];
 
-                    // c. Obtener el valor de reemplazo
                     const replRaw = m.key in replacements ? replacements[m.key] : "";
                     const repl = escapeXml(String(replRaw));
 
-                    // d. Aplicar el reemplazo en los textos originales
                     const before = texts[startRun].slice(0, runStartOffset);
                     const after = texts[endRun].slice(runEndOffset + 1);
 
                     texts[startRun] = before + repl + after;
 
-                    // Vaciar los runs intermedios
                     for (let r = startRun + 1; r <= endRun; r++) texts[r] = "";
                 }
 
-                // 5. Reconstruir el XML
                 let outXml = "";
                 let curPos = 0;
                 let ri = 0;
-                tRegex.lastIndex = 0; // Resetear la regex para la reconstrucción
+                tRegex.lastIndex = 0;
                 while ((match = tRegex.exec(xml)) !== null) {
                     outXml += xml.slice(curPos, match.index);
-                    // Usar el texto modificado
                     outXml += runs[ri].prefix + texts[ri].replace(/<w:br\/>/g, '') + runs[ri].suffix;
                     curPos = match.index + match[0].length;
                     ri++;
@@ -866,7 +878,6 @@
                 tableWrapper.id = TABLE_CONTAINER_ID;
                 tableWrapper.tabIndex = 0;
 
-                // Añadir listener de pegado masivo al wrapper
                 tableWrapper.addEventListener('paste', handlePaste);
 
                 const table = document.createElement('table');
@@ -905,6 +916,10 @@
                 generateBtn.disabled = false;
                 fileInput.classList.add('hidden');
                 reloadBtn.classList.remove('hidden');
+
+                // Como acabamos de crear la tabla, lo dejamos "limpio"
+                // (pero ojo: agregarFila marca dirty. Entonces lo limpiamos aquí.)
+                markClean();
             }
 
         })();
