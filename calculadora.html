@@ -159,44 +159,41 @@ pre {
 </style>
 </head>
 <body>
-  <h1>Calculadora de plazos judiciales</h1>
-  <p class="muted">Cálculo de términos ajustando fines de semana, festivos y cierres judiciales. Usa el cálculo rápido o llena los datos completos del proceso.</p>
+  <h1>Calculadora de términos</h1>
+  <p class="muted">Calcula plazos judiciales en Colombia teniendo en cuenta cierres, fines de semana y festivos.</p>
 
   <div class="calculadoras">
-    <!-- Calculadora rápida -->
    <fieldset>
 
-    <legend>🧮 Cálculo rápido de días hábiles</legend>
+    <legend>🧮 Calculadora sencilla</legend>
 
-    <label for="simple_fecha">📆 Fecha de inicio</label>
+    <label for="simple_fecha">📆 Fecha inicial</label>
     <input id="simple_fecha" type="date">
 
-    <label for="simple_dias">📅 Días hábiles a sumar</label>
+    <label for="simple_dias">📅 Días hábiles</label>
     <input id="simple_dias" type="number" min="0" value="1">
 
-    <button id="btn_simple_calc">Obtener fecha final</button>
+    <button id="btn_simple_calc">Calcular</button>
 
     <div class="note" style="margin-top:1em">
-      <strong>Resultado:</strong>
+      <strong>Fecha final:</strong>
       <div id="simple_resultado" class="small"></div>
     </div>
   </fieldset>
-
-  <!-- Calculadora completa para procesos judiciales -->
   <fieldset>
 
-    <legend>📄 Plazos del proceso</legend>
+    <legend>Datos</legend>
     <div class="row">
       <div>
         <label for="fecha_notif">📆 Fecha de notificación</label>
         <input id="fecha_notif" type="date" />
       </div>
       <div>
-        <label for="tipo_notif">📢 Medio de notificación</label>
+        <label for="tipo_notif">📢 Medio</label>
         <select id="tipo_notif">
           <option value=""></option>
-          <option>Estados (3 días hábiles de ejecutoria)</option>
-          <option>Audiencia (ejecutoria inmediata)</option>
+          <option>Estados</option>
+          <option>Audiencia</option>
         </select>
 
       </div>    
@@ -205,18 +202,18 @@ pre {
     <!-- Obligación condicional -->
     <div class="row">
       <div>
-        <label for="modo_cond">⏳ Cómo se mide la obligación condicional</label>
+        <label for="modo_cond">⏳ Modo plazo condicional</label>
         <select id="modo_cond">
           <option value="dias" selected>Días</option>
           <option value="fijo">Fecha fija</option>
         </select>
       </div>
       <div id="cond_dias">
-        <label for="dias_cond">📅 Días hábiles para la obligación condicional</label>
+        <label for="dias_cond">📅 Plazo ob. condicional (días hábiles)</label>
         <input id="dias_cond" type="number" value="0" min="0" max="90" />
       </div>
       <div id="cond_fijo" style="display:none">
-        <label for="fecha_cond">📆 Fecha límite de la obligación condicional</label>
+        <label for="fecha_cond">📆 Fecha límite ob. condicional</label>
         <input id="fecha_cond" type="date" />
       </div>
     </div>
@@ -224,7 +221,7 @@ pre {
     <!-- Cumplimiento -->
     <div class="row">
       <div>
-        <label for="modo_cumpl">🧭 Cómo se mide el plazo de cumplimiento</label>
+        <label for="modo_cumpl">🧭 Modo plazo cumplir</label>
         <select id="modo_cumpl">
           <option value="dias" selected>Días</option>
           <option value="meses">Meses</option>
@@ -232,15 +229,15 @@ pre {
         </select>
       </div>
       <div id="box_dias">
-        <label for="dias_cumpl">📅 Días hábiles para cumplir (Ddo)</label>
+        <label for="dias_cumpl">📅 Plazo para cumplir (Ddo)</label>
         <input id="dias_cumpl" type="number" value="15" min="0" max="90" />
       </div>
       <div id="box_meses" style="display:none">
-        <label for="meses_cumpl">📅 Meses para cumplir</label>
+        <label for="meses_cumpl">📅 Plazo (meses)</label>
         <input id="meses_cumpl" type="number" value="1" min="0" max="36" />
       </div>
       <div id="box_fijo" style="display:none">
-        <label for="fecha_fija">📅 Fecha fija para cumplir</label>
+        <label for="fecha_fija">📅 Fecha límite fija</label>
         <input id="fecha_fija" type="date" />
       </div>
     </div>
@@ -248,30 +245,30 @@ pre {
     <!-- Informe -->
     <div class="row">
       <div>
-        <label for="dias_informe">📅 Días hábiles para informar (Ddte)</label>
+        <label for="dias_informe">📅 Plazo para informar (Ddte)</label>
         <input id="dias_informe" type="number" value="30" min="0" max="90" />
       </div>
       <div>
-        <label for="fecha_informe">📬 Fecha en que llegó la noticia</label>
+        <label for="fecha_informe">📬 Fecha noticia de incumplimiento</label>
         <input id="fecha_informe" type="date" />
-        <div><label><input id="sin_noticia" type="checkbox"/> Sin noticia recibida</label></div>
+        <div><label><input id="sin_noticia" type="checkbox"/> Sin noticia</label></div>
       </div>
     </div>
 
     <div class="actions">
-      <button id="btn_calc">Calcular plazos</button>
-      <button id="btn_detalle" class="info">Ver detalle</button>
-      <button id="btn_reset" class="warn">Limpiar todo</button>
+      <button id="btn_calc">Calcular</button>
+      <button id="btn_detalle" class="info">Detalle</button>
+      <button id="btn_reset" class="warn">Resetear</button>
     </div>
   </fieldset>
 
   <div id="aviso" class="note" style="display:none"></div>
   <div id="resultado" style="display:none">
-    <h2>📌 Resultados principales</h2>
+    <h2>📌 Resultados</h2>
     <pre id="res_text"></pre>
   </div>
   <div id="detalle" style="display:none">
-    <h3>Detalle paso a paso</h3>
+    <h3>Detalle</h3>
     <pre id="det_ejecutoria"></pre>
     <pre id="det_cond"></pre>
     <pre id="det_cumpl"></pre>
@@ -280,43 +277,42 @@ pre {
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  // --- utilidades de fecha y acceso rápido a nodos ---
+  // --- utilidades ---
   const two = (n)=>String(n).padStart(2,'0');
   const fmt = (d)=>`${two(d.getDate())}-${two(d.getMonth()+1)}-${d.getFullYear()}`;
   const ymd = (d)=>`${d.getFullYear()}-${two(d.getMonth()+1)}-${two(d.getDate())}`;
   const parseYMD = (s)=>{const [y,m,da]=s.split('-').map(Number);return new Date(y,m-1,da);};
   const el=(id)=>document.getElementById(id);
 
-  // --- cierres judiciales cargados como rangos [dd/mm/aaaa] ---
+  // --- cierres judiciales ---
   const cierres_rangos=[["01/01/2020","10/01/2020"],["17/03/2020","30/06/2020"],["13/11/2020",null],["19/12/2020","11/01/2021"],["12/03/2021",null],["06/09/2021",null],["20/12/2021","10/01/2022"],["19/12/2022","11/01/2023"],["12/09/2023","15/09/2023"],["18/10/2023",null],["24/11/2023",null],["27/11/2023",null],["28/11/2023",null],["20/12/2023","14/01/2024"],["19/04/2024",null],["24/04/2024","10/06/2024"],["27/08/2024","28/08/2024"],["18/03/2024",null],["20/12/2024","10/01/2025"], ["22/12/2025", "9/01/2026"]];
   function ddmmyyyyToDate(s){const[d,m,y]=s.split('/').map(Number);return new Date(y,m-1,d);}
-  function buildCierresSet(){const set=new Set();for(const[iniS,finS] of cierres_rangos){const ini=ddmmyyyyToDate(iniS);const fin=finS?ddmmyyyyToDate(finS):ini;for(let d=new Date(ini);d<=fin;d.setDate(d.getDate()+1)){set.add(ymd(d));}}return set;} // aplanamos los rangos a un set de YYYY-MM-DD
+  function buildCierresSet(){const set=new Set();for(const[iniS,finS] of cierres_rangos){const ini=ddmmyyyyToDate(iniS);const fin=finS?ddmmyyyyToDate(finS):ini;for(let d=new Date(ini);d<=fin;d.setDate(d.getDate()+1)){set.add(ymd(d));}}return set;}
   const FECHAS_CIERRE=buildCierresSet();
 
-  // --- festivos Colombia calculados en rango de años solicitado ---
+  // --- festivos Colombia ---
   function easterDate(year){const a=year%19,b=Math.floor(year/100),c=year%100;const d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);const g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30;const i=Math.floor(c/4),k=c%4;const l=(32+2*e+2*i-h-k)%7;const m=Math.floor((a+11*h+22*l)/451);const month=Math.floor((h+l-7*m+114)/31);const day=1+((h+l-7*m+114)%31);return new Date(year,month-1,day);}
   function siguienteLunes(d){const day=d.getDay();if(day===1)return d;const addDays=(8-day)%7;const nd=new Date(d);nd.setDate(nd.getDate()+addDays);return nd;}
   function add(set,date){set.add(ymd(date));}
   function holidaysCOForYears(startY,endY){const set=new Set();for(let y=startY;y<=endY;y++){const pascua=easterDate(y);const d=(base,off)=>{const nd=new Date(base);nd.setDate(nd.getDate()+off);return nd;};add(set,new Date(y,0,1));add(set,new Date(y,4,1));add(set,new Date(y,6,20));add(set,new Date(y,7,7));add(set,new Date(y,11,8));add(set,new Date(y,11,25));add(set,siguienteLunes(new Date(y,0,6)));add(set,siguienteLunes(new Date(y,2,19)));add(set,siguienteLunes(new Date(y,5,29)));add(set,siguienteLunes(new Date(y,7,15)));add(set,siguienteLunes(new Date(y,9,12)));add(set,siguienteLunes(new Date(y,10,1)));add(set,siguienteLunes(new Date(y,10,11)));add(set,d(pascua,-3));add(set,d(pascua,-2));add(set,siguienteLunes(d(pascua,39)));add(set,siguienteLunes(d(pascua,60)));add(set,siguienteLunes(d(pascua,68)));}return set;}
 
-  // --- helpers de conteo hábil ---
+  // --- helpers ---
   function esHabil(date,festivos){const ymdS=ymd(date);const day=date.getDay();return !FECHAS_CIERRE.has(ymdS)&&day>=1&&day<=5&&!festivos.has(ymdS);}
   function siguienteHabil(date,festivos){const d=new Date(date);while(!esHabil(d,festivos))d.setDate(d.getDate()+1);return d;}
   function sumarDiasHabilesJudiciales(fechaInicio,cantidad,festivos){const logs=[];let actual=new Date(fechaInicio);actual.setDate(actual.getDate()+1);let cont=0;const diasSemana=['dom','lun','mar','mié','jue','vie','sáb'];while(cont<cantidad){let estado='✅ Hábil judicial',razon='';const isCierre=FECHAS_CIERRE.has(ymd(actual));const isWE=actual.getDay()===0||actual.getDay()===6;const isFest=festivos.has(ymd(actual));if(isCierre){estado='❌ No cuenta';razon='Suspensión';}else if(isWE){estado='❌ No cuenta';razon='Fin de semana';}else if(isFest){estado='❌ No cuenta';razon='Festivo';}else{cont++;}logs.push(`${diasSemana[actual.getDay()]} ${fmt(actual)} → ${estado}${razon?` (${razon})`:''}`);actual.setDate(actual.getDate()+1);}const fechaFinal=new Date(actual);fechaFinal.setDate(fechaFinal.getDate()-1);return {fechaFinal,logs};}
   function sumarMeses(fecha,meses){const d=new Date(fecha);const y=d.getFullYear(),m=d.getMonth();const targetY=y+Math.floor((m+meses)/12);const targetM=(m+meses)%12;const lastDay=new Date(targetY,targetM+1,0).getDate();const day=Math.min(d.getDate(),lastDay);return new Date(targetY,targetM,day);}
 
-  // --- UI: muestra u oculta campos según el modo elegido ---
+  // --- UI ---
   function toggleModo(){const v=el('modo_cumpl').value;el('box_dias').style.display=(v==='dias')?'':'none';el('box_meses').style.display=(v==='meses')?'':'none';el('box_fijo').style.display=(v==='fijo')?'':'none';}
   function toggleCond(){const v=el('modo_cond').value;el('cond_dias').style.display=(v==='dias')?'':'none';el('cond_fijo').style.display=(v==='fijo')?'':'none';}
   el('modo_cumpl').addEventListener('change',toggleModo);
   el('modo_cond').addEventListener('change',toggleCond);
   el('sin_noticia').addEventListener('change',()=>{el('fecha_informe').disabled=el('sin_noticia').checked;if(el('sin_noticia').checked)el('fecha_informe').value='';});
 
-  // Limpieza total del formulario y de los contenedores de resultado
   function reset(){el('fecha_notif').value='';el('tipo_notif').selectedIndex = 0; el('modo_cond').value='dias';toggleCond();el('dias_cond').value=0;el('fecha_cond').value='';el('modo_cumpl').value='dias';toggleModo();el('dias_cumpl').value=15;el('meses_cumpl').value=1;el('fecha_fija').value='';el('dias_informe').value=30;el('fecha_informe').value='';el('sin_noticia').checked=false;el('fecha_informe').disabled=false;el('resultado').style.display='none';el('detalle').style.display='none';el('aviso').style.display='none';}
   el('btn_reset').addEventListener('click',reset);
 
-// --- calculadora rápida (independiente del resto) ---
+// --- calculadora sencilla (independiente) ---
 function sumarHabilesSimple(fechaInicio, dias, festivos) {
   let d = new Date(fechaInicio);
   let cont = 0;
@@ -351,10 +347,10 @@ el('btn_simple_calc').addEventListener('click', () => {
 
 
 
-// --- cálculo completo de plazos del proceso ---
+// --- cálculo ---
 function calcular(mostrarDetalle){
 
-    // 🚫 Validaciones de entrada básicas
+    // 🚫 Validación: exigir que haya un medio seleccionado
     const tipo = el('tipo_notif').value;
     if (!tipo) {
       alert('Selecciona un medio de notificación antes de calcular.');
@@ -374,47 +370,45 @@ function calcular(mostrarDetalle){
       return;
     }
 
-    // 🗓️ Bases de tiempo: notificamos, generamos rango de festivos
     const notif = parseYMD(notifStr);
     const yearStart = notif.getFullYear() - 1;
     const yearEnd   = notif.getFullYear() + 20;
     const festivos = holidaysCOForYears(yearStart, yearEnd);
 
-    // Ejecutoria: 3 días hábiles si es por estados; inmediata si es audiencia
     const diasEjecutoria = (tipo === 'Estados') ? 3 : 0;
     const {fechaFinal: fechaEjecutoria, logs: logEjec} = sumarDiasHabilesJudiciales(notif, diasEjecutoria, festivos);
 
-    // Obligación condicional: suma en días o fija una fecha
+    // obligación condicional
     let baseCumpl=fechaEjecutoria,logCond=[],descriptorCond='';
     const modoCond=el('modo_cond').value;
     if(modoCond==='dias'){const n=Number(el('dias_cond').value||0);if(n>0){const r=sumarDiasHabilesJudiciales(fechaEjecutoria,n,festivos);baseCumpl=r.fechaFinal;logCond=r.logs;descriptorCond=`${n} día(s) hábil(es)`;}}
     else if(modoCond==='fijo'){const fStr=el('fecha_cond').value;if(fStr){const tentativa=parseYMD(fStr);const ajustada=siguienteHabil(tentativa,festivos);baseCumpl=ajustada;logCond=[`Fecha fija condicional: ${fmt(tentativa)}`,(tentativa.getTime()!==ajustada.getTime()?`Ajustada a hábil → ${fmt(ajustada)}`:'Cae en día hábil')];descriptorCond=`Fecha fija (${fmt(tentativa)})`;}}
 
-    // Cumplimiento principal: en días, meses o fecha fija
+    // cumplimiento
     let fechaCumpl=null,logCumpl=[];
     const modo=el('modo_cumpl').value;
     if(modo==='dias'){const n=Number(el('dias_cumpl').value||0);const r=sumarDiasHabilesJudiciales(baseCumpl,n,festivos);fechaCumpl=r.fechaFinal;logCumpl=r.logs;}
     else if(modo==='meses'){const n=Number(el('meses_cumpl').value||0);const raw=sumarMeses(baseCumpl,n);fechaCumpl=siguienteHabil(raw,festivos);logCumpl=[`Base: ${fmt(baseCumpl)} + ${n} mes(es) = ${fmt(raw)}`,...(raw.getTime()!==fechaCumpl.getTime()?[`Ajustada a hábil → ${fmt(fechaCumpl)}`]:['Cae en día hábil'])];}
     else if(modo==='fijo'){const fStr=el('fecha_fija').value;if(fStr){const raw=parseYMD(fStr);fechaCumpl=siguienteHabil(raw,festivos);logCumpl=[`Fecha fija: ${fmt(raw)}`,(raw.getTime()!==fechaCumpl.getTime()?`Ajustada a hábil → ${fmt(fechaCumpl)}`:'Cae en día hábil')];}}
 
-    // Límite para informar el incumplimiento
+    // límite informe
     const fechaLimite=siguienteHabil(sumarDiasHabilesJudiciales(fechaCumpl,Number(el('dias_informe').value||0),festivos).fechaFinal,festivos);
     const logsLimite=[`Base: ${fmt(fechaCumpl)} + ${el('dias_informe').value} día(s) hábil(es) = ${fmt(fechaLimite)}`];
 
-    // Fecha en la que se recibe o no la noticia
+    // fecha informe
     let fechaInforme=null;
     if(!sinNoticia&&informeStr){const raw=parseYMD(informeStr);fechaInforme=siguienteHabil(raw,festivos);}
 
-    // === aviso principal de estado del plazo ===
+    // === aviso principal ===
     const hoy=new Date();const hoyYMD=ymd(hoy);
     const aviso=el('aviso');let avisoHTML='';
-    if(hoyYMD<=ymd(fechaCumpl)) avisoHTML='<strong>✅ En tiempo de cumplir.</strong>';
-    else if(hoyYMD<=ymd(fechaLimite)) avisoHTML='<strong>⚠️ Cumplimiento vencido, en tiempo de informar.</strong>';
-    else avisoHTML='<strong class="danger">⛔ Ya venció el plazo para cumplir e informar.</strong>';
+    if(hoyYMD<=ymd(fechaCumpl)) avisoHTML='<strong>📌 Este asunto todavía está en término de cumplir.</strong>';
+    else if(hoyYMD<=ymd(fechaLimite)) avisoHTML='<strong>📌 Este asunto todavía está en término para informar.</strong>';
+    else avisoHTML='<strong class="danger">⛔ Este asunto ya venció para cumplir e informar.</strong>';
     aviso.innerHTML=avisoHTML;aviso.style.display='block';
 
-    // === evaluación de la noticia (o ausencia) ===
-    let estado='▶️ Sin noticia registrada',textoEntendido='';
+    // === evaluación de noticia ===
+    let estado='▶️ Sin noticia de incumplimiento',textoEntendido='';
     if(!sinNoticia&&informeStr){
       const informe=parseYMD(informeStr);
       if(informe<=fechaCumpl) estado='❌ Pretémpore (informó antes de vencer el cumplimiento)';
@@ -431,15 +425,15 @@ function calcular(mostrarDetalle){
       }
     }
 
-    // salida resumida para la tarjeta principal
+    // salida
     const res=[];
-    res.push(`Notificación: ${fmt(notif)} (${tipo})`);
-    res.push(`Ejecutoria: ${fmt(fechaEjecutoria)}`);
-    if(descriptorCond)res.push(`⏳ Obligación condicional (${descriptorCond}): ${fmt(baseCumpl)}`);
-    if(fechaCumpl)res.push(`Fecha límite para cumplir: ${fmt(fechaCumpl)}`);
-    res.push(`Fecha límite para informar: ${fmt(fechaLimite)}`);
-    if(sinNoticia)res.push(`Noticia: sin registrar`);else if(fechaInforme)res.push(`Noticia recibida: ${fmt(fechaInforme)}${textoEntendido}`);
-    res.push(`📣 Estado de la noticia: ${estado}`);
+    res.push(`Fecha de Notificación: ${fmt(notif)} (${tipo})`);
+    res.push(`Fecha de Ejecutoria: ${fmt(fechaEjecutoria)}`);
+    if(descriptorCond)res.push(`⏳ Lte. cumplimiento Obligación condicional (${descriptorCond}): ${fmt(baseCumpl)}`);
+    if(fechaCumpl)res.push(`Lte. Cumplimiento: ${fmt(fechaCumpl)}`);
+    res.push(`Lte. Informe incumplimiento: ${fmt(fechaLimite)}`);
+    if(sinNoticia)res.push(`Noticia: (sin noticia)`);else if(fechaInforme)res.push(`Noticia: ${fmt(fechaInforme)}${textoEntendido}`);
+    res.push(`📣 Estado noticia: ${estado}`);
 
     el('res_text').textContent=res.join('\n');
     el('resultado').style.display='block';
