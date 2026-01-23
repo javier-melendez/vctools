@@ -167,9 +167,6 @@
         #tabla-dinamica th:last-child, #tabla-dinamica td:last-child {
             width: 90px;
         }
-        input[type="date"] {
-            font-size: 0.9em;
-        }
 
         /* --- MODO "UN SOLO REGISTRO" (VERTICAL) --- */
         .table-wrapper.single-record-mode {
@@ -327,20 +324,18 @@
             const TABLE_CONTAINER_ID = "tableContainer";
 
             // ==========================================================
-            // ✅ NUEVO: PROTECCIÓN CONTRA CIERRE/RECARGA SIN ADVERTENCIA
+            // ✅ PROTECCIÓN CONTRA CIERRE/RECARGA SIN ADVERTENCIA
             // ==========================================================
             let hasUnsavedChanges = false;
             const markDirty = () => { hasUnsavedChanges = true; };
             const markClean = () => { hasUnsavedChanges = false; };
 
-            // Advertencia nativa al cerrar pestaña/ventana, recargar o navegar
             window.addEventListener("beforeunload", function (e) {
                 if (!hasUnsavedChanges) return;
                 e.preventDefault();
-                e.returnValue = ""; // Texto será genérico por el navegador
+                e.returnValue = "";
             });
 
-            // Detecta edición en cualquier input dentro del contenedor de tabla
             document.addEventListener("input", function (e) {
                 const el = e.target;
                 if (el && el.matches && el.matches(`#${TABLE_CONTAINER_ID} input`)) {
@@ -349,10 +344,8 @@
             });
             // ==========================================================
 
-            // Listeners iniciales
             fileInput.addEventListener('change', handleFileSelect, false);
 
-            // ✅ Ajuste: antes recargaba directo; ahora si hay cambios, confirma
             reloadBtn.addEventListener('click', () => {
                 if (hasUnsavedChanges) {
                     const ok = confirm("Vas a recargar y perder cambios no guardados. ¿Seguro?");
@@ -361,14 +354,12 @@
                 location.reload();
             });
 
-            // Cerrar modal al hacer click fuera
             window.onclick = function(event) {
                 if (event.target == previewModal) {
                     cerrarPreview();
                 }
             }
 
-            // --- Lógica de Carga de Archivo ---
             function handleFileSelect(evt) {
                 const f = evt.target.files[0];
                 if (!f) return;
@@ -383,7 +374,6 @@
                         const vars = extractVarsFromZip(zip);
                         log(`✅ Plantilla cargada. ${vars.length} variables detectadas.`);
                         buildForm(vars);
-                        // cargar plantilla no es "cambio" en datos, así que lo dejamos limpio
                         markClean();
                     } catch (err) {
                         log("❌ Error al leer el archivo DOCX. Asegúrate de que es un .docx válido sin contraseña.");
@@ -393,7 +383,6 @@
                 reader.readAsBinaryString(f);
             }
 
-            // --- Layout Vertical/Horizontal ---
             function updateLayoutMode() {
                 const wrapper = document.getElementById(TABLE_CONTAINER_ID);
                 const tbody = document.getElementById(TBODY_ID);
@@ -417,9 +406,19 @@
                     const lower = v.toLowerCase();
                     let inp;
 
+                    // ✅ CAMBIO: ya NO es calendario; ahora es texto dd-mm-aaaa
                     if (lower.includes("fecha") && !lower.includes("fechas")) {
                         inp = document.createElement("input");
-                        inp.type = "date";
+                        inp.type = "text";
+                        inp.placeholder = "dd-mm-aaaa (ej: 23-1-2025)";
+                        inp.inputMode = "numeric";
+                        inp.dataset.isFecha = "1"; // marca para convertir al generar
+
+                        // opcional: permitir solo números y guiones
+                        inp.addEventListener("input", () => {
+                            inp.value = inp.value.replace(/[^\d-]/g, "");
+                        });
+
                     } else if (v.includes('.')) {
                         inp = document.createElement("input");
                         inp.type = "text";
@@ -433,7 +432,6 @@
 
                     inp.name = v;
 
-                    // Label para modo vertical
                     const labelDiv = document.createElement('div');
                     labelDiv.className = 'dyn-label';
                     labelDiv.textContent = v;
@@ -447,14 +445,12 @@
                 const divAccion = document.createElement('div');
                 divAccion.className = 'action-cell';
 
-                // Botón Previsualizar
                 const btnPreview = document.createElement('button');
                 btnPreview.textContent = '👁️';
                 btnPreview.title = 'Previsualizar este documento';
                 btnPreview.className = 'iconbtn iconbtn-preview';
                 btnPreview.onclick = () => previsualizarFila(btnPreview);
 
-                // Botón Eliminar
                 const btnEliminar = document.createElement('button');
                 btnEliminar.textContent = '🗑️';
                 btnEliminar.title = 'Eliminar fila';
@@ -476,7 +472,7 @@
                 const nuevaFila = construirFila(detectedVars, true);
                 cuerpoTabla.appendChild(nuevaFila);
                 updateLayoutMode();
-                markDirty(); // ✅ NUEVO
+                markDirty();
             }
 
             window.eliminarFila = function(btnElement) {
@@ -487,12 +483,12 @@
                 } else {
                     if(row) {
                         row.querySelectorAll('input').forEach(input => {
-                            input.value = input.type === 'date' ? '' : (input.type === 'number' ? '0' : '');
+                            input.value = '';
                         });
                     }
                 }
                 updateLayoutMode();
-                markDirty(); // ✅ NUEVO
+                markDirty();
             }
 
             // --- Previsualización ---
@@ -500,19 +496,15 @@
                 const row = btnElement.closest('tr');
                 const contexto = leerContextoDeFila(row);
 
-                // Mostrar Modal
                 previewModal.style.display = "block";
                 previewContainer.innerHTML = '<p style="text-align:center; padding:20px;">Generando vista previa...</p>';
 
                 setTimeout(() => {
                     try {
-                        // 1. Generar el Blob solo para este registro
                         const blob = generarBlobDOCX(contexto, true);
 
-                        // 2. Limpiar contenedor
                         previewContainer.innerHTML = "";
 
-                        // 3. Renderizar usando docx-preview
                         docx.renderAsync(blob, previewContainer, null, {
                             inWrapper: true,
                             ignoreWidth: false,
@@ -552,7 +544,7 @@
                 if (!bulkPaste) return;
 
                 e.preventDefault();
-                markDirty(); // ✅ NUEVO
+                markDirty();
 
                 const rows = pastedData.replace(/\r/g, '').trim().split('\n');
                 const numCols = detectedVars.length;
@@ -590,9 +582,13 @@
                 const contexto = {};
                 inputs.forEach(input => {
                     let valor = input.value.trim();
-                    if (input.type === 'date' && valor) {
-                        valor = formatDateToSpanish(valor);
+
+                    // ✅ CAMBIO: si es fecha (dd-mm-aaaa) la convertimos a letras
+                    if (input.dataset.isFecha === "1" && valor) {
+                        const convertido = formatDateDdMmYyyyToSpanish(valor);
+                        if (convertido) valor = convertido; // si es inválida, la deja igual
                     }
+
                     setDeep(contexto, input.name, valor);
                 });
                 return contexto;
@@ -692,12 +688,12 @@
                     if (generatedBlobs.length === 1) {
                         saveAs(generatedBlobs[0].blob, `${generatedBlobs[0].name}_${baseFilename}.docx`);
                         log("✅ Documento descargado.");
-                        markClean(); // ✅ NUEVO: ya “guardaste” (descargaste)
+                        markClean();
                     } else if (generatedBlobs.length > 1) {
                         if (typeof JSZip === 'undefined') {
                             log("⚠️ JSZip no cargó, descargando el primero.");
                             saveAs(generatedBlobs[0].blob, `${baseFilename}_${generatedBlobs[0].name}.docx`);
-                            markClean(); // ✅ NUEVO
+                            markClean();
                         } else {
                             const zipArchiver = new JSZip();
                             generatedBlobs.forEach(item => {
@@ -707,7 +703,7 @@
                             zipArchiver.generateAsync({type:"blob"}).then(content => {
                                 saveAs(content, `${baseFilename}_lote.zip`);
                                 log("✅ ZIP descargado con éxito.");
-                                markClean(); // ✅ NUEVO
+                                markClean();
                             });
                         }
                     }
@@ -730,11 +726,29 @@
                 return null;
             }
 
-            function formatDateToSpanish(dateStr) {
+            // ✅ NUEVO: dd-mm-aaaa (o d-m-aaaa / con /) => "d de mes de aaaa"
+            function formatDateDdMmYyyyToSpanish(dateStr) {
                 if (!dateStr) return "";
-                const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio","julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
-                const [year, month, day] = dateStr.split("-");
-                return `${parseInt(day)} de ${meses[parseInt(month) - 1]} de ${year}`;
+
+                const cleaned = String(dateStr).trim().replace(/\//g, "-");
+                const m = cleaned.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+                if (!m) return null;
+
+                const day = parseInt(m[1], 10);
+                const month = parseInt(m[2], 10);
+                const year = parseInt(m[3], 10);
+
+                if (month < 1 || month > 12) return null;
+
+                const daysInMonth = new Date(year, month, 0).getDate(); // mes 1-12
+                if (day < 1 || day > daysInMonth) return null;
+
+                const meses = [
+                    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+                ];
+
+                return `${day} de ${meses[month - 1]} de ${year}`;
             }
 
             function log(msg) {
@@ -911,14 +925,11 @@
 
                 formArea.appendChild(fieldset);
 
-                // Primera fila y actualización de estado
                 agregarFila();
                 generateBtn.disabled = false;
                 fileInput.classList.add('hidden');
                 reloadBtn.classList.remove('hidden');
 
-                // Como acabamos de crear la tabla, lo dejamos "limpio"
-                // (pero ojo: agregarFila marca dirty. Entonces lo limpiamos aquí.)
                 markClean();
             }
 
